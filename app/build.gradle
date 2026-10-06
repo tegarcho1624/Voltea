@@ -1,0 +1,38 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.voltea.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.voltea.app"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    // Firma fija: así cada versión nueva se instala encima de la anterior sin borrar tus datos
+    signingConfigs {
+        debug {
+            def ks = rootProject.file("voltea-debug.keystore")
+            if (ks.exists()) {
+                storeFile ks
+                storePassword "android"
+                keyAlias "androiddebugkey"
+                keyPassword "android"
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}
