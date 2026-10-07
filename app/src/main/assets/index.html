@@ -153,6 +153,7 @@ body.vs #auBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
 .sh input[type=range]{padding:0;border:0;background:none;accent-color:var(--gold);margin-bottom:4px}
 .arow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .cn{font-size:13px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stage,.stage *{touch-action:none;-webkit-user-select:none;user-select:none}
 @keyframes up{from{transform:translateY(40px);opacity:0}}
 @media (prefers-reduced-motion:reduce){.inner{transition:none}.sh{animation:none}}
 </style>
@@ -488,6 +489,7 @@ function bind(el){
   };
   el.addEventListener("pointerup",end);
   el.addEventListener("pointercancel",end);
+  el.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});
   el.addEventListener("keydown",e=>{
     if(e.key===" "||e.key==="Enter"){e.preventDefault();el.classList.toggle("flip")}
     if(e.key==="ArrowLeft")rate("g");
