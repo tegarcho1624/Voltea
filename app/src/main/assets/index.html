@@ -140,7 +140,7 @@ mark{background:#c9a24b33;color:var(--gold);border-radius:4px;padding:0 2px}
 .ck{display:flex;align-items:center;gap:10px;margin:2px 0 14px;font-size:15px}
 .sh .ck input{width:auto;display:inline-block;margin:0;accent-color:var(--gold)}
 [hidden]{display:none!important}
-#auBtn{position:fixed;right:70px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:8;width:46px;height:46px;padding:0;border-radius:50%;background:#161310d9;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#auBtn{position:fixed;right:124px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:8;width:46px;height:46px;padding:0;border-radius:50%;background:#161310d9;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 body.vs #auBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
 #auBtn.on{color:var(--gold);border-color:var(--gold)}
 .cau{width:52px;height:52px;border-radius:50%;padding:0;margin-top:14px;color:var(--gold)}
@@ -156,9 +156,25 @@ body.vs #auBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
 .stage,.stage *{touch-action:none;-webkit-user-select:none;user-select:none}
 @keyframes up{from{transform:translateY(40px);opacity:0}}
 @media (prefers-reduced-motion:reduce){.inner{transition:none}.sh{animation:none}}
+#vdBtn{position:fixed;right:70px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:8;width:46px;height:46px;padding:0;border-radius:50%;background:#161310d9;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+body.vs #vdBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
+#vdBtn.on{color:var(--gold);border-color:var(--gold)}
+#bgv{position:fixed;inset:0;width:100%;height:100%;z-index:0;object-fit:cover;pointer-events:none;display:none;background:#000}
+#bgv.on{display:block}
+.vseg{display:flex;gap:8px;margin-bottom:12px}
+.vseg button{flex:1;padding:11px 4px;font-size:13px;font-weight:600}
+.vseg button.on{border-color:var(--gold);color:var(--gold)}
+#sVd .sh{max-height:92vh;max-height:92dvh;overflow-y:auto}
+.vdrow{display:flex;gap:8px;margin-bottom:6px}
+.vdrow input{flex:1;min-width:0;margin:0}
+.vdrow button{font-weight:600}
+#vdRes{max-height:34vh;overflow-y:auto;margin:6px 0 12px;font-size:13px;color:var(--mut)}
+#vdRes .rs b{display:block;font-weight:600;color:var(--ink);font-size:14px}
+#vdRes .rs span{color:var(--mut);font-size:12px}
 </style>
 </head>
 <body>
+<video id="bgv" playsinline webkit-playsinline disablepictureinpicture tabindex="-1"></video>
 <div id="bgl"></div>
 
 <section class="view on" id="home">
@@ -253,6 +269,8 @@ body.vs #auBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
 
 <button id="bgBtn" aria-label="Cambiar fondo"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.7"/><path d="m21 15-5-5L5 21"/></svg></button>
 
+<button id="vdBtn" aria-label="Fondo animado"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20"/></svg></button>
+
 <button id="auBtn" aria-label="Música de fondo"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
 
 <div class="sheet" id="sAu"><div class="sh">
@@ -277,6 +295,21 @@ body.vs #auBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
   <h2 id="bgTitle">Fondo</h2>
   <p class="sl">Ajuste de la imagen</p><div class="seg"><button data-m="cover">Rellenar</button><button data-m="fill">Estirar</button><button data-m="fit">Centrada</button></div>
   <div class="col"><button class="solid" id="bgPick">Elegir foto del dispositivo</button><input type="file" id="bgFile" accept="image/*" hidden><button id="bgDel" style="color:var(--r)">Quitar fondo</button><button data-close>Cerrar</button></div>
+</div></div>
+
+<div class="sheet" id="sVd"><div class="sh">
+  <h2 id="vdTitle">Fondo animado</h2>
+  <p class="sl">Ajuste del video</p><div class="vseg"><button data-m="cover">Rellenar</button><button data-m="fill">Estirar</button><button data-m="fit">Centrada</button></div>
+  <div id="vdCtl" hidden>
+    <p class="sl" id="vdName"></p>
+    <div class="pc"><button id="vdBack" aria-label="Atrasar 10 segundos">↺ 10</button><button class="solid" id="vdPlay" aria-label="Pausar o reanudar"></button><button id="vdFwd" aria-label="Adelantar 10 segundos">10 ↻</button></div>
+    <div class="srow"><div><b>Bucle</b><small>Repetir el video (local o de YouTube)</small></div><button class="sw" id="vdLoop" role="switch" aria-checked="false" aria-label="Bucle"></button></div>
+  </div>
+  <p class="sl" style="margin-top:14px">Video de YouTube sin anuncios</p>
+  <div class="vdrow"><input id="vdQ" type="text" list="vdSug" placeholder="Buscar o pegar enlace de YouTube" autocomplete="off"><button class="solid" id="vdGo">Buscar</button></div>
+  <datalist id="vdSug"></datalist>
+  <div id="vdRes"></div>
+  <div class="col"><button class="solid" id="vdPick">Elegir video del dispositivo</button><input type="file" id="vdFile" accept="video/*" hidden><button id="vdDel" style="color:var(--r)" hidden>Quitar fondo animado</button><button data-close>Cerrar</button></div>
 </div></div>
 
 <div id="toast" role="status"></div>
@@ -313,9 +346,10 @@ const bgKey=()=>curView==="home"?"home":(curView==="edit"?"e:":"s:")+deckId;
 const saveBG=()=>{try{localStorage.setItem(BGKEY,JSON.stringify(BG));return true}catch(e){return false}};
 const SZ={cover:"cover",fill:"100% 100%",fit:"contain"};
 const bgMode=()=>BG["m:"+bgKey()]||"cover";
-function applyBg(){
+function applyBg(){applyVid();paintBg()}
+function paintBg(){
   const u=BG[bgKey()],el=$("bgl");
-  el.style.backgroundImage=u?`linear-gradient(rgba(14,12,10,.5),rgba(14,12,10,.72)),url("${u}")`:"none";
+  el.style.backgroundImage=vidOn?"linear-gradient(rgba(14,12,10,.5),rgba(14,12,10,.72))":u?`linear-gradient(rgba(14,12,10,.5),rgba(14,12,10,.72)),url("${u}")`:"none";
   el.style.backgroundSize="100% 100%,"+SZ[bgMode()];
   el.style.backgroundRepeat="no-repeat";
   el.style.backgroundPosition="center";
@@ -703,7 +737,7 @@ async function syncAudio(force){
         auURL=URL.createObjectURL(b);bgm.src=auURL;bgm.loop=!!AU.loop[k];
         const p=auPos[k]||0;
         bgm.onloadedmetadata=()=>{if(p&&p<bgm.duration)bgm.currentTime=p};
-        if(!auOff[k]&&cardA.paused)bgm.play().catch(()=>{});
+        if(!auOff[k]&&cardA.paused&&!vidOn)bgm.play().catch(()=>{});
       }
     }catch(e){}
   }
@@ -726,7 +760,7 @@ function auUI(){
 }
 ["play","pause","timeupdate","loadedmetadata","ended"].forEach(e=>bgm.addEventListener(e,auUI));
 $("auBtn").onclick=()=>{openS("sAu");auUI()};
-$("auPlay").onclick=()=>{const k=auSec();if(bgm.paused){auOff[k]=false;bgm.play().catch(()=>{})}else{auOff[k]=true;bgm.pause()}};
+$("auPlay").onclick=()=>{const k=auSec();if(bgm.paused){if(vidOn){toast("La música se detiene mientras haya un fondo animado");return}auOff[k]=false;bgm.play().catch(()=>{})}else{auOff[k]=true;bgm.pause()}};
 $("auBack").onclick=()=>{bgm.currentTime=Math.max(0,bgm.currentTime-10)};
 $("auFwd").onclick=()=>{bgm.currentTime=Math.min(bgm.duration||0,bgm.currentTime+10)};
 $("auSeek").oninput=()=>{if(bgm.duration)bgm.currentTime=$("auSeek").value/1000*bgm.duration};
@@ -743,7 +777,7 @@ $("auDel").onclick=()=>{const k=auSec();aDel(k).then(()=>{delete AU.name[k];dele
 function cauUI(){$("cardAu").innerHTML=svg(!cardA.paused&&current&&cardCur===current.id?PAUSE:PLAY)}
 function stopCard(){cardA.pause()}
 cardA.onplay=()=>{if(!bgm.paused){bgm.pause();duck=true}cauUI()};
-cardA.onpause=cardA.onended=()=>{if(duck){duck=false;bgm.play().catch(()=>{})}cauUI()};
+cardA.onpause=cardA.onended=()=>{if(duck){duck=false;if(!vidOn)bgm.play().catch(()=>{})}cauUI()};
 $("cardAu").onclick=async()=>{
   if(!current)return;
   if(cardA.src&&cardCur===current.id){if(cardA.paused)cardA.play().catch(()=>{});else cardA.pause();return}
@@ -793,6 +827,171 @@ $("bgFile").onchange=e=>{
   r.readAsDataURL(f);
 };
 $("bgDel").onclick=()=>{delete BG[bgKey()];delete BG["m:"+bgKey()];saveBG();applyBg();closeS("sBg");toast("Fondo quitado")};
+
+/* ---------- Fondo animado: video local o de YouTube sin anuncios (mismos servidores que AloTube) ---------- */
+const VDK="voltea_vd";
+let VD;try{VD=JSON.parse(localStorage.getItem(VDK))}catch(e){}
+VD=Object.assign({act:{},yt:{},name:{},loop:{},mode:{}},VD);
+const saveVD=()=>{try{localStorage.setItem(VDK,JSON.stringify(VD))}catch(e){}};
+const bgv=$("bgv"),VFIT={cover:"cover",fill:"fill",fit:"contain"};
+let vidOn=false,vdURL=null,vdTok=0,vdLoaded=null,vdFail=null;const vdPaused={};
+const vkey=()=>bgKey();
+const vPut=(k,b)=>tx("readwrite",s=>s.put(b,k)),vGet=k=>tx("readonly",s=>s.get(k)),vDel=k=>tx("readwrite",s=>s.delete(k)).catch(()=>{});
+bgv.disablePictureInPicture=true;bgv.controls=false;
+
+/* Servidores (los mismos de AloTube, ordenados por los que mejor responden) */
+const SRV=["p https://pipedapi.kavin.rocks","p https://api.piped.private.coffee","i https://inv.nadeko.net","i https://yewtu.be"];
+let SST={};try{SST=JSON.parse(localStorage.getItem("voltea_srv"))||{}}catch(e){}
+const srvScore=l=>{const x=SST[l];return x?x.ok*2-x.fail*3+(x.good&&Date.now()-x.t<3600000?6:0):0};
+const srvMark=(l,ok)=>{const x=SST[l]||(SST[l]={ok:0,fail:0,t:0,good:false});
+  if(ok){x.ok=Math.min(x.ok+1,20);x.fail=Math.max(0,x.fail-1);x.good=true}else{x.fail=Math.min(x.fail+1,10);x.good=false}
+  x.t=Date.now();try{localStorage.setItem("voltea_srv",JSON.stringify(SST))}catch(e){}};
+async function jget(u,sig){const r=await fetch(u,{signal:sig});if(!r.ok)throw new Error(r.status);return r.json()}
+async function tryAll(fn){
+  let err;
+  for(const line of [...SRV].sort((a,b)=>srvScore(b)-srvScore(a))){
+    const[t,...r]=line.split(" "),base=r.join(" ").replace(/\/$/,"");
+    const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),9000);
+    try{const res=await fn(t,base,ctl.signal);clearTimeout(to);srvMark(line,true);return res}
+    catch(e){clearTimeout(to);err=e;srvMark(line,false)}
+  }
+  throw err||new Error("Sin servidores");
+}
+function ytId(s){
+  s=s.trim();
+  if(/^[\w-]{11}$/.test(s)&&(/[\d_-]/.test(s)||/[A-Z]/.test(s.slice(1))))return s;
+  try{const u=new URL(s);
+    if(!/(^|\.)(youtube\.com|youtu\.be|youtube-nocookie\.com)$/i.test(u.hostname))return null;
+    if(u.hostname.includes("youtu.be"))return u.pathname.slice(1,12);
+    if(u.searchParams.get("v"))return u.searchParams.get("v");
+    const m=u.pathname.match(/\/(shorts|embed|live)\/([\w-]{11})/);if(m)return m[2];
+  }catch(e){}
+  return null;
+}
+const ytSearch=q=>tryAll(async(t,b,sig)=>{
+  if(t==="p"){const d=await jget(`${b}/search?q=${encodeURIComponent(q)}&filter=videos`,sig);
+    return d.items.filter(x=>x.url&&x.url.includes("watch")).map(x=>({id:x.url.split("v=")[1],title:x.title,by:x.uploaderName,dur:x.duration}))}
+  const d=await jget(`${b}/api/v1/search?q=${encodeURIComponent(q)}&type=video`,sig);
+  return d.filter(x=>x.videoId).map(x=>({id:x.videoId,title:x.title,by:x.author,dur:x.lengthSeconds}));
+});
+const ytStream=id=>tryAll(async(t,b,sig)=>{
+  let list=[],title="";
+  if(t==="p"){const s=await jget(`${b}/streams/${id}`,sig);title=s.title||"";
+    list=(s.videoStreams||[]).filter(x=>!x.videoOnly&&x.url).map(x=>({u:x.url,h:parseInt(x.quality)||0,m:x.mimeType}))}
+  else{const s=await jget(`${b}/api/v1/videos/${id}`,sig);title=s.title||"";
+    list=(s.formatStreams||[]).map(x=>({u:x.url.startsWith("http")?x.url:b+x.url,h:parseInt(x.qualityLabel)||0,m:x.type}))}
+  list=list.filter(x=>!x.m||bgv.canPlayType(x.m));
+  if(!list.length)throw new Error("sin formato compatible");
+  list.sort((a,b)=>a.h-b.h);
+  const pick=list.find(x=>x.h>=360)||list[list.length-1];   /* calidad moderada: ahorra datos y batería */
+  return{url:pick.u,title};
+});
+
+/* Estado del video de fondo */
+function vdClear(){
+  vidOn=false;vdTok++;bgv.pause();bgv.classList.remove("on");bgv.removeAttribute("src");bgv.load();
+  if(vdURL){URL.revokeObjectURL(vdURL);vdURL=null}
+  vdLoaded=null;
+}
+function bgmResume(){const k=auSec();if(!vidOn&&bgm.getAttribute("src")&&!auOff[k]&&cardA.paused)bgm.play().catch(()=>{})}
+async function applyVid(force){
+  const k=vkey(),act=VD.act[k];
+  if(vdFail&&vdFail!==k)vdFail=null;
+  $("vdBtn").classList.toggle("on",!!act&&vdFail!==k);
+  if(!act||(vdFail===k&&!force)){vdClear();return}
+  vdFail=null;vidOn=true;bgm.pause();
+  bgv.style.objectFit=VFIT[VD.mode[k]||"cover"];bgv.loop=!!VD.loop[k];
+  const sig=act+":"+k+":"+(act==="url"?VD.yt[k].id:(VD.name[k]||""));
+  if(!force&&vdLoaded===sig&&bgv.getAttribute("src")){bgv.classList.add("on");if(!vdPaused[k])bgv.play().catch(()=>{});return}
+  const tok=++vdTok;vdLoaded=null;
+  try{
+    let src;
+    if(act==="local"){
+      const b=await vGet("v:"+k);if(tok!==vdTok)return;if(!b)throw new Error("sin video");
+      if(vdURL)URL.revokeObjectURL(vdURL);vdURL=URL.createObjectURL(b);src=vdURL;
+    }else{
+      const r=await ytStream(VD.yt[k].id);if(tok!==vdTok)return;src=r.url;
+      if(!VD.yt[k].title&&r.title){VD.yt[k].title=r.title;saveVD();vdUI()}
+    }
+    bgv.src=src;vdLoaded=sig;bgv.classList.add("on");
+    if(!vdPaused[k])bgv.play().catch(()=>{});
+  }catch(e){
+    if(tok!==vdTok)return;
+    vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");
+    toast(act==="url"?"No se pudo cargar el video de YouTube":"No se pudo cargar el video");
+  }
+}
+bgv.addEventListener("error",()=>{if(!vidOn||!bgv.getAttribute("src"))return;const k=vkey();vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");toast("No se pudo reproducir el video de fondo")});
+document.addEventListener("visibilitychange",()=>{
+  if(!vidOn||!bgv.getAttribute("src"))return;
+  if(document.hidden)bgv.pause();else if(!vdPaused[vkey()])bgv.play().catch(()=>{});
+});
+const vdRefresh=force=>{applyVid(force);paintBg()};
+
+/* Hoja del fondo animado */
+function vdUI(){
+  const k=vkey(),act=VD.act[k],m=VD.mode[k]||"cover";
+  if(!$("sVd").classList.contains("on"))return;
+  $("vdTitle").textContent="Fondo animado de "+({home:"inicio",edit:"la carpeta",study:"estudio"}[curView]);
+  document.querySelectorAll(".vseg button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
+  $("vdCtl").hidden=!act;$("vdDel").hidden=!act;
+  $("vdName").textContent=act==="url"?"YouTube: "+(VD.yt[k].title||VD.yt[k].id):act==="local"?"Video: "+(VD.name[k]||"del dispositivo"):"";
+  $("vdPlay").innerHTML=svg(bgv.paused?PLAY:PAUSE);
+  $("vdLoop").setAttribute("aria-checked",String(!!VD.loop[k]));
+}
+["play","pause","loadedmetadata"].forEach(e=>bgv.addEventListener(e,vdUI));
+$("vdBtn").onclick=()=>{$("vdRes").textContent="";openS("sVd");vdUI()};
+document.querySelectorAll(".vseg button").forEach(b=>b.onclick=()=>{const k=vkey();VD.mode[k]=b.dataset.m;saveVD();bgv.style.objectFit=VFIT[b.dataset.m];vdUI()});
+$("vdBack").onclick=()=>{bgv.currentTime=Math.max(0,bgv.currentTime-10)};
+$("vdFwd").onclick=()=>{const d=bgv.duration,t=bgv.currentTime+10;bgv.currentTime=isFinite(d)?Math.min(d,t):t};
+$("vdPlay").onclick=()=>{const k=vkey();if(bgv.paused){delete vdPaused[k];bgv.play().catch(()=>{})}else{vdPaused[k]=true;bgv.pause()}};
+$("vdLoop").onclick=()=>{const k=vkey();VD.loop[k]=!VD.loop[k];bgv.loop=!!VD.loop[k];saveVD();vdUI()};
+$("vdPick").onclick=()=>$("vdFile").click();
+$("vdFile").onchange=e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  const k=vkey();
+  vPut("v:"+k,f).then(()=>{delete VD.yt[k];VD.act[k]="local";VD.name[k]=f.name;delete vdPaused[k];saveVD();vdRefresh(true);vdUI();toast("Fondo animado guardado")})
+    .catch(()=>toast("No se pudo guardar el video"));
+};
+async function vdSetYt(x){
+  const k=vkey();
+  await vDel("v:"+k);
+  VD.yt[k]={id:x.id,title:x.title||""};VD.act[k]="url";delete VD.name[k];delete vdPaused[k];saveVD();
+  $("vdRes").textContent="";$("vdQ").value="";
+  vdRefresh(true);vdUI();toast("Fondo animado guardado");
+}
+async function vdSearch(){
+  const s=$("vdQ").value.trim();if(!s)return;
+  const id=ytId(s);
+  if(id){vdSetYt({id,title:""});return}
+  const box=$("vdRes");box.textContent="Buscando…";
+  try{
+    const r=await ytSearch(s);box.textContent="";
+    if(!r.length){box.textContent="Sin resultados";return}
+    r.slice(0,15).forEach(x=>{
+      const b=document.createElement("button");b.className="rs";b.innerHTML="<b></b><span></span>";
+      b.firstChild.textContent=x.title;b.lastChild.textContent=[x.by,x.dur?mmss(x.dur):""].filter(Boolean).join(" · ");
+      b.onclick=()=>vdSetYt(x);box.appendChild(b);
+    });
+  }catch(e){box.textContent="No se pudo buscar. Revisa tu conexión."}
+}
+$("vdGo").onclick=vdSearch;
+$("vdQ").addEventListener("keydown",e=>{if(e.key==="Enter")vdSearch()});
+window.__vsg=d=>{try{const l=$("vdSug");l.innerHTML="";(d[1]||[]).slice(0,8).forEach(x=>{const o=document.createElement("option");o.value=x[0];l.appendChild(o)})}catch(e){}};
+let vsT;
+$("vdQ").addEventListener("input",()=>{
+  clearTimeout(vsT);const v=$("vdQ").value.trim();
+  if(v.length<2||/^https?:/i.test(v))return;
+  vsT=setTimeout(()=>{const sc=document.createElement("script");
+    sc.src="https://suggestqueries.google.com/complete/search?client=youtube&ds=yt&hl=es&jsonp=__vsg&q="+encodeURIComponent(v);
+    sc.onload=sc.onerror=()=>sc.remove();document.head.appendChild(sc)},200);
+});
+$("vdDel").onclick=async()=>{
+  const k=vkey();
+  await vDel("v:"+k);
+  delete VD.act[k];delete VD.yt[k];delete VD.name[k];delete VD.loop[k];delete VD.mode[k];delete vdPaused[k];saveVD();
+  vdRefresh(true);vdUI();bgmResume();closeS("sVd");toast("Fondo animado quitado");
+};
 
 /* Botón atrás de Android: cierra hojas, vuelve al inicio o limpia la búsqueda */
 window.voltBack=()=>{
