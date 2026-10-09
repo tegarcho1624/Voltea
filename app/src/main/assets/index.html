@@ -165,12 +165,10 @@ body.vs #vdBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
 .vseg button{flex:1;padding:11px 4px;font-size:13px;font-weight:600}
 .vseg button.on{border-color:var(--gold);color:var(--gold)}
 #sVd .sh{max-height:92vh;max-height:92dvh;overflow-y:auto}
-.vdrow{display:flex;gap:8px;margin-bottom:6px}
-.vdrow input{flex:1;min-width:0;margin:0}
-.vdrow button{font-weight:600}
-#vdRes{max-height:34vh;overflow-y:auto;margin:6px 0 12px;font-size:13px;color:var(--mut)}
-#vdRes .rs b{display:block;font-weight:600;color:var(--ink);font-size:14px}
-#vdRes .rs span{color:var(--mut);font-size:12px}
+.vdvol{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+#vdHint{margin:6px 0 14px}
+.vdvol button{flex:none;padding:11px 14px;font-weight:600}
+.vdvol input[type=range]{flex:1;width:auto;min-width:0;margin:0!important}
 </style>
 </head>
 <body>
@@ -302,14 +300,13 @@ body.vs #vdBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
   <p class="sl">Ajuste del video</p><div class="vseg"><button data-m="cover">Rellenar</button><button data-m="fill">Estirar</button><button data-m="fit">Centrada</button></div>
   <div id="vdCtl" hidden>
     <p class="sl" id="vdName"></p>
-    <p class="sl" id="vdErr" hidden style="color:var(--r);word-break:break-word"></p>
+    <p class="sl" id="vdErr" hidden style="color:var(--r)">No se pudo cargar el video. Toca ▶ para reintentar.</p>
     <div class="pc"><button id="vdBack" aria-label="Atrasar 10 segundos">↺ 10</button><button class="solid" id="vdPlay" aria-label="Pausar o reanudar"></button><button id="vdFwd" aria-label="Adelantar 10 segundos">10 ↻</button></div>
-    <div class="srow"><div><b>Bucle</b><small>Repetir el video (local o de YouTube)</small></div><button class="sw" id="vdLoop" role="switch" aria-checked="false" aria-label="Bucle"></button></div>
+    <div class="srow"><div><b>Bucle</b><small>Repetir el video</small></div><button class="sw" id="vdLoop" role="switch" aria-checked="false" aria-label="Bucle"></button></div>
+    <p class="sl" style="margin-top:14px">Volumen del video: <span id="vdVolTxt">100 %</span></p>
+    <div class="vdvol"><button id="vdMute">Silenciar</button><input type="range" id="vdVol" min="0" max="100" value="100" aria-label="Volumen del video"></div>
+    <p class="sl" id="vdHint"></p>
   </div>
-  <p class="sl" style="margin-top:14px">Video de YouTube sin anuncios</p>
-  <div class="vdrow"><input id="vdQ" type="text" list="vdSug" placeholder="Buscar o pegar enlace de YouTube" autocomplete="off"><button class="solid" id="vdGo">Buscar</button></div>
-  <datalist id="vdSug"></datalist>
-  <div id="vdRes"></div>
   <div class="col"><button class="solid" id="vdPick">Elegir video del dispositivo</button><input type="file" id="vdFile" accept="video/*" hidden><button id="vdDel" style="color:var(--r)" hidden>Quitar fondo animado</button><button data-close>Cerrar</button></div>
 </div></div>
 
@@ -738,7 +735,7 @@ async function syncAudio(force){
         auURL=URL.createObjectURL(b);bgm.src=auURL;bgm.loop=!!AU.loop[k];
         const p=auPos[k]||0;
         bgm.onloadedmetadata=()=>{if(p&&p<bgm.duration)bgm.currentTime=p};
-        if(!auOff[k]&&cardA.paused&&!vidOn)bgm.play().catch(()=>{});
+        if(!auOff[k]&&cardA.paused&&!vidSnd())bgm.play().catch(()=>{});
       }
     }catch(e){}
   }
@@ -761,7 +758,7 @@ function auUI(){
 }
 ["play","pause","timeupdate","loadedmetadata","ended"].forEach(e=>bgm.addEventListener(e,auUI));
 $("auBtn").onclick=()=>{openS("sAu");auUI()};
-$("auPlay").onclick=()=>{const k=auSec();if(bgm.paused){if(vidOn){toast("La música se detiene mientras haya un fondo animado");return}auOff[k]=false;bgm.play().catch(()=>{})}else{auOff[k]=true;bgm.pause()}};
+$("auPlay").onclick=()=>{const k=auSec();if(bgm.paused){if(vidSnd()){toast("Silencia el video de fondo para escuchar la música");return}auOff[k]=false;bgm.play().catch(()=>{})}else{auOff[k]=true;bgm.pause()}};
 $("auBack").onclick=()=>{bgm.currentTime=Math.max(0,bgm.currentTime-10)};
 $("auFwd").onclick=()=>{bgm.currentTime=Math.min(bgm.duration||0,bgm.currentTime+10)};
 $("auSeek").oninput=()=>{if(bgm.duration)bgm.currentTime=$("auSeek").value/1000*bgm.duration};
@@ -778,7 +775,7 @@ $("auDel").onclick=()=>{const k=auSec();aDel(k).then(()=>{delete AU.name[k];dele
 function cauUI(){$("cardAu").innerHTML=svg(!cardA.paused&&current&&cardCur===current.id?PAUSE:PLAY)}
 function stopCard(){cardA.pause()}
 cardA.onplay=()=>{if(!bgm.paused){bgm.pause();duck=true}cauUI()};
-cardA.onpause=cardA.onended=()=>{if(duck){duck=false;if(!vidOn)bgm.play().catch(()=>{})}cauUI()};
+cardA.onpause=cardA.onended=()=>{if(duck){duck=false;if(!vidSnd())bgm.play().catch(()=>{})}cauUI()};
 $("cardAu").onclick=async()=>{
   if(!current)return;
   if(cardA.src&&cardCur===current.id){if(cardA.paused)cardA.play().catch(()=>{});else cardA.pause();return}
@@ -829,122 +826,53 @@ $("bgFile").onchange=e=>{
 };
 $("bgDel").onclick=()=>{delete BG[bgKey()];delete BG["m:"+bgKey()];saveBG();applyBg();closeS("sBg");toast("Fondo quitado")};
 
-/* ---------- Fondo animado: video local o de YouTube sin anuncios (mismos servidores que AloTube) ---------- */
+/* ---------- Fondo animado: video del dispositivo (sin internet) ---------- */
 const VDK="voltea_vd";
 let VD;try{VD=JSON.parse(localStorage.getItem(VDK))}catch(e){}
-VD=Object.assign({act:{},yt:{},name:{},loop:{},mode:{}},VD);
+VD=Object.assign({act:{},name:{},loop:{},mode:{},vol:{},mute:{}},VD);
+Object.keys(VD.act).forEach(k=>{if(VD.act[k]!=="local")delete VD.act[k]});   /* versión anterior: se descartan los videos de enlace */
+delete VD.yt;try{localStorage.removeItem("voltea_srv")}catch(e){}
 const saveVD=()=>{try{localStorage.setItem(VDK,JSON.stringify(VD))}catch(e){}};
 const bgv=$("bgv"),VFIT={cover:"cover",fill:"fill",fit:"contain"};
-let vidOn=false,vdURL=null,vdTok=0,vdLoaded=null,vdFail=null,vdErr="",vdHlsObj=null;const vdPaused={};
+let vidOn=false,vdURL=null,vdTok=0,vdLoaded=null,vdFail=null;const vdPaused={};
 const vkey=()=>bgKey();
+const vdVolOf=k=>VD.vol[k]==null?1:VD.vol[k];
+/* El video "suena" si hay fondo animado, no está en mute y su volumen no es 0: solo entonces la música de fondo se calla */
+const vidSnd=()=>vidOn&&!VD.mute[vkey()]&&vdVolOf(vkey())>0;
 const vPut=(k,b)=>tx("readwrite",s=>s.put(b,k)),vGet=k=>tx("readonly",s=>s.get(k)),vDel=k=>tx("readwrite",s=>s.delete(k)).catch(()=>{});
 bgv.disablePictureInPicture=true;bgv.controls=false;
-
-/* Servidores (los mismos de AloTube, ordenados por los que mejor responden) */
-const SRV=["p https://pipedapi.kavin.rocks","p https://api.piped.private.coffee","i https://inv.nadeko.net","i https://yewtu.be"];
-let SST={};try{SST=JSON.parse(localStorage.getItem("voltea_srv"))||{}}catch(e){}
-const srvScore=l=>{const x=SST[l];return x?x.ok*2-x.fail*3+(x.good&&Date.now()-x.t<3600000?6:0):0};
-const srvMark=(l,ok)=>{const x=SST[l]||(SST[l]={ok:0,fail:0,t:0,good:false});
-  if(ok){x.ok=Math.min(x.ok+1,20);x.fail=Math.max(0,x.fail-1);x.good=true}else{x.fail=Math.min(x.fail+1,10);x.good=false}
-  x.t=Date.now();try{localStorage.setItem("voltea_srv",JSON.stringify(SST))}catch(e){}};
-async function jget(u,sig){const r=await fetch(u,{signal:sig});if(!r.ok)throw new Error(r.status);return r.json()}
-async function tryAll(fn,ms){
-  const errs=[];
-  for(const line of [...SRV].sort((a,b)=>srvScore(b)-srvScore(a))){
-    const[t,...r]=line.split(" "),base=r.join(" ").replace(/\/$/,"");
-    const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms||9000);
-    try{const res=await fn(t,base,ctl.signal);clearTimeout(to);srvMark(line,true);return res}
-    catch(e){
-      clearTimeout(to);srvMark(line,false);
-      const m=e&&e.name==="AbortError"?"tiempo agotado":/^\d+$/.test(e&&e.message)?"HTTP "+e.message:(e&&e.message)||"error";
-      errs.push(base.replace(/^https?:\/\//,"")+": "+m);
-    }
-  }
-  throw new Error(errs.join(" · ")||"sin servidores");
-}
-function ytId(s){
-  s=s.trim();
-  if(/^[\w-]{11}$/.test(s)&&(/[\d_-]/.test(s)||/[A-Z]/.test(s.slice(1))))return s;
-  try{const u=new URL(s);
-    if(!/(^|\.)(youtube\.com|youtu\.be|youtube-nocookie\.com)$/i.test(u.hostname))return null;
-    if(u.hostname.includes("youtu.be"))return u.pathname.slice(1,12);
-    if(u.searchParams.get("v"))return u.searchParams.get("v");
-    const m=u.pathname.match(/\/(shorts|embed|live)\/([\w-]{11})/);if(m)return m[2];
-  }catch(e){}
-  return null;
-}
-const ytSearch=q=>tryAll(async(t,b,sig)=>{
-  if(t==="p"){const d=await jget(`${b}/search?q=${encodeURIComponent(q)}&filter=videos`,sig);
-    return d.items.filter(x=>x.url&&x.url.includes("watch")).map(x=>({id:x.url.split("v=")[1],title:x.title,by:x.uploaderName,dur:x.duration}))}
-  const d=await jget(`${b}/api/v1/search?q=${encodeURIComponent(q)}&type=video`,sig);
-  return d.filter(x=>x.videoId).map(x=>({id:x.videoId,title:x.title,by:x.author,dur:x.lengthSeconds}));
-});
-const ytStream=id=>tryAll(async(t,b,sig)=>{
-  let list=[],title="",hls="";
-  if(t==="p"){const s=await jget(`${b}/streams/${id}`,sig);title=s.title||"";hls=s.hls||"";
-    list=(s.videoStreams||[]).filter(x=>!x.videoOnly&&x.url).map(x=>({u:x.url,h:parseInt(x.quality)||0,m:x.mimeType}))}
-  else{const s=await jget(`${b}/api/v1/videos/${id}?local=true`,sig);title=s.title||"";
-    list=(s.formatStreams||[]).map(x=>({u:x.url.startsWith("http")?x.url:b+x.url,h:parseInt(x.qualityLabel)||0,m:x.type}))}
-  list=list.filter(x=>!x.m||bgv.canPlayType(x.m));
-  if(list.length){
-    list.sort((a,b)=>a.h-b.h);
-    const pick=list.find(x=>x.h>=360)||list[list.length-1];   /* calidad moderada: ahorra datos y batería */
-    return{url:pick.u,title};
-  }
-  if(hls)return{url:hls,title,hls:true};                        /* sin formato directo: lista HLS */
-  throw new Error("este video no ofrece un formato reproducible");
-},20000);
-async function vdHls(url,tok){
-  if(bgv.canPlayType("application/vnd.apple.mpegurl")){bgv.src=url;return}
-  if(!window.Hls){
-    await new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js";sc.onload=res;sc.onerror=()=>rej(new Error("no se pudo cargar el reproductor HLS"));document.head.appendChild(sc)});
-  }
-  if(tok!==vdTok)return;
-  if(!window.Hls||!Hls.isSupported())throw new Error("el video solo está en HLS y este dispositivo no lo admite");
-  if(vdHlsObj){vdHlsObj.destroy();vdHlsObj=null}
-  const h=vdHlsObj=new Hls({capLevelToPlayerSize:true,maxBufferLength:20});
-  h.on(Hls.Events.ERROR,(e,d)=>{if(d&&d.fatal){vdErr="error al reproducir la lista HLS ("+(d.details||"?")+")";bgv.dispatchEvent(new Event("error"))}});
-  h.loadSource(url);h.attachMedia(bgv);
-}
-
-/* Estado del video de fondo */
+function vdAudio(){const k=vkey();bgv.muted=!!VD.mute[k];bgv.volume=vdVolOf(k)}
 function vdClear(){
-  if(vdHlsObj){try{vdHlsObj.destroy()}catch(e){}vdHlsObj=null}
   vidOn=false;vdTok++;bgv.pause();bgv.classList.remove("on");bgv.removeAttribute("src");bgv.load();
   if(vdURL){URL.revokeObjectURL(vdURL);vdURL=null}
   vdLoaded=null;
 }
-function bgmResume(){const k=auSec();if(!vidOn&&bgm.getAttribute("src")&&!auOff[k]&&cardA.paused)bgm.play().catch(()=>{})}
+function bgmResume(){const k=auSec();if(!vidSnd()&&bgm.getAttribute("src")&&!auOff[k]&&cardA.paused)bgm.play().catch(()=>{})}
 async function applyVid(force){
   const k=vkey(),act=VD.act[k];
   if(vdFail&&vdFail!==k)vdFail=null;
   $("vdBtn").classList.toggle("on",!!act&&vdFail!==k);
   if(!act||(vdFail===k&&!force)){vdClear();return}
-  vdFail=null;vidOn=true;bgm.pause();
-  bgv.style.objectFit=VFIT[VD.mode[k]||"cover"];bgv.loop=!!VD.loop[k];
-  const sig=act+":"+k+":"+(act==="url"?VD.yt[k].id:(VD.name[k]||""));
+  vdFail=null;vidOn=true;
+  bgv.style.objectFit=VFIT[VD.mode[k]||"cover"];bgv.loop=!!VD.loop[k];vdAudio();
+  if(vidSnd())bgm.pause();
+  const sig="local:"+k+":"+(VD.name[k]||"");
   if(!force&&vdLoaded===sig&&bgv.getAttribute("src")){bgv.classList.add("on");if(!vdPaused[k])bgv.play().catch(()=>{});return}
   const tok=++vdTok;vdLoaded=null;
   try{
-    let src,hlsMode=false;
-    if(act==="local"){
-      const b=await vGet("v:"+k);if(tok!==vdTok)return;if(!b)throw new Error("sin video");
-      if(vdURL)URL.revokeObjectURL(vdURL);vdURL=URL.createObjectURL(b);src=vdURL;
-    }else{
-      const r=await ytStream(VD.yt[k].id);if(tok!==vdTok)return;src=r.url;hlsMode=!!r.hls;
-      if(!VD.yt[k].title&&r.title){VD.yt[k].title=r.title;saveVD();vdUI()}
-    }
-    if(hlsMode)await vdHls(src,tok);else bgv.src=src;
-    if(tok!==vdTok)return;
-    vdLoaded=sig;bgv.classList.add("on");
+    const b=await vGet("v:"+k);if(tok!==vdTok)return;if(!b)throw new Error("sin video");
+    if(vdURL)URL.revokeObjectURL(vdURL);vdURL=URL.createObjectURL(b);
+    bgv.src=vdURL;vdLoaded=sig;bgv.classList.add("on");
     if(!vdPaused[k])bgv.play().catch(()=>{});
   }catch(e){
     if(tok!==vdTok)return;
-    vdErr=(e&&e.message)||"error";vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");vdUI();
-    toast(act==="url"?"No se pudo cargar el video de YouTube":"No se pudo cargar el video");
+    vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");vdUI();toast("No se pudo cargar el video");
   }
 }
-bgv.addEventListener("error",()=>{if(!vidOn||!bgv.getAttribute("src"))return;const k=vkey();if(!vdErr||vdErr.startsWith("No se"))vdErr="el video no se pudo reproducir";vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");toast("No se pudo reproducir el video de fondo")});
+bgv.addEventListener("error",()=>{
+  if(!vidOn||!bgv.getAttribute("src"))return;
+  vdFail=vkey();vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");vdUI();toast("No se pudo reproducir el video de fondo");
+});
 document.addEventListener("visibilitychange",()=>{
   if(!vidOn||!bgv.getAttribute("src"))return;
   if(document.hidden)bgv.pause();else if(!vdPaused[vkey()])bgv.play().catch(()=>{});
@@ -958,62 +886,49 @@ function vdUI(){
   $("vdTitle").textContent="Fondo animado de "+({home:"inicio",edit:"la carpeta",study:"estudio"}[curView]);
   document.querySelectorAll(".vseg button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
   $("vdCtl").hidden=!act;$("vdDel").hidden=!act;
-  $("vdName").textContent=act==="url"?"YouTube: "+(VD.yt[k].title||VD.yt[k].id):act==="local"?"Video: "+(VD.name[k]||"del dispositivo"):"";
-  $("vdErr").hidden=!(act&&vdFail===k);$("vdErr").textContent="No se pudo cargar: "+vdErr+". Toca ▶ para reintentar.";
+  $("vdName").textContent=act?"Video: "+(VD.name[k]||"del dispositivo"):"";
+  $("vdErr").hidden=!(act&&vdFail===k);
   $("vdPlay").innerHTML=svg(bgv.paused?PLAY:PAUSE);
   $("vdLoop").setAttribute("aria-checked",String(!!VD.loop[k]));
+  const mu=!!VD.mute[k],vol=Math.round(vdVolOf(k)*100);
+  $("vdMute").textContent=mu?"Activar sonido":"Silenciar";
+  $("vdVol").value=vol;$("vdVolTxt").textContent=mu?"en silencio":vol+" %";
+  $("vdHint").textContent=vidSnd()||!act?"Mientras el video suene, la música de fondo se detiene.":"Con el video en silencio puedes activar la música de fondo.";
 }
 ["play","pause","loadedmetadata"].forEach(e=>bgv.addEventListener(e,vdUI));
-$("vdBtn").onclick=()=>{$("vdRes").textContent="";openS("sVd");vdUI()};
+$("vdBtn").onclick=()=>{openS("sVd");vdUI()};
 document.querySelectorAll(".vseg button").forEach(b=>b.onclick=()=>{const k=vkey();VD.mode[k]=b.dataset.m;saveVD();bgv.style.objectFit=VFIT[b.dataset.m];vdUI()});
 $("vdBack").onclick=()=>{bgv.currentTime=Math.max(0,bgv.currentTime-10)};
 $("vdFwd").onclick=()=>{const d=bgv.duration,t=bgv.currentTime+10;bgv.currentTime=isFinite(d)?Math.min(d,t):t};
-$("vdPlay").onclick=()=>{const k=vkey();if(vdFail===k){vdFail=null;vdErr="";delete vdPaused[k];vdRefresh(true);vdUI();return}if(bgv.paused){delete vdPaused[k];bgv.play().catch(()=>{})}else{vdPaused[k]=true;bgv.pause()}};
+$("vdPlay").onclick=()=>{
+  const k=vkey();
+  if(vdFail===k){vdFail=null;delete vdPaused[k];vdRefresh(true);vdUI();return}
+  if(bgv.paused){delete vdPaused[k];bgv.play().catch(()=>{})}else{vdPaused[k]=true;bgv.pause()}
+};
 $("vdLoop").onclick=()=>{const k=vkey();VD.loop[k]=!VD.loop[k];bgv.loop=!!VD.loop[k];saveVD();vdUI()};
+$("vdMute").onclick=()=>{
+  const k=vkey();VD.mute[k]=!VD.mute[k];saveVD();vdAudio();
+  if(vidSnd())bgm.pause();            /* el video vuelve a sonar: la música se calla */
+  vdUI();
+};
+$("vdVol").oninput=()=>{
+  const k=vkey(),v=$("vdVol").value/100;VD.vol[k]=v;
+  if(v>0&&VD.mute[k])VD.mute[k]=false;
+  saveVD();vdAudio();
+  if(vidSnd())bgm.pause();
+  vdUI();
+};
 $("vdPick").onclick=()=>$("vdFile").click();
 $("vdFile").onchange=e=>{
   const f=e.target.files[0];e.target.value="";if(!f)return;
   const k=vkey();
-  vPut("v:"+k,f).then(()=>{delete VD.yt[k];VD.act[k]="local";VD.name[k]=f.name;delete vdPaused[k];saveVD();vdRefresh(true);vdUI();toast("Fondo animado guardado")})
+  vPut("v:"+k,f).then(()=>{VD.act[k]="local";VD.name[k]=f.name;delete vdPaused[k];saveVD();vdRefresh(true);vdUI();toast("Fondo animado guardado")})
     .catch(()=>toast("No se pudo guardar el video"));
 };
-async function vdSetYt(x){
-  const k=vkey();
-  await vDel("v:"+k);
-  VD.yt[k]={id:x.id,title:x.title||""};VD.act[k]="url";delete VD.name[k];delete vdPaused[k];saveVD();
-  $("vdRes").textContent="";$("vdQ").value="";
-  vdRefresh(true);vdUI();toast("Fondo animado guardado");
-}
-async function vdSearch(){
-  const s=$("vdQ").value.trim();if(!s)return;
-  const id=ytId(s);
-  if(id){vdSetYt({id,title:""});return}
-  const box=$("vdRes");box.textContent="Buscando…";
-  try{
-    const r=await ytSearch(s);box.textContent="";
-    if(!r.length){box.textContent="Sin resultados";return}
-    r.slice(0,15).forEach(x=>{
-      const b=document.createElement("button");b.className="rs";b.innerHTML="<b></b><span></span>";
-      b.firstChild.textContent=x.title;b.lastChild.textContent=[x.by,x.dur?mmss(x.dur):""].filter(Boolean).join(" · ");
-      b.onclick=()=>vdSetYt(x);box.appendChild(b);
-    });
-  }catch(e){box.textContent="No se pudo buscar: "+((e&&e.message)||"sin conexión")}
-}
-$("vdGo").onclick=vdSearch;
-$("vdQ").addEventListener("keydown",e=>{if(e.key==="Enter")vdSearch()});
-window.__vsg=d=>{try{const l=$("vdSug");l.innerHTML="";(d[1]||[]).slice(0,8).forEach(x=>{const o=document.createElement("option");o.value=x[0];l.appendChild(o)})}catch(e){}};
-let vsT;
-$("vdQ").addEventListener("input",()=>{
-  clearTimeout(vsT);const v=$("vdQ").value.trim();
-  if(v.length<2||/^https?:/i.test(v))return;
-  vsT=setTimeout(()=>{const sc=document.createElement("script");
-    sc.src="https://suggestqueries.google.com/complete/search?client=youtube&ds=yt&hl=es&jsonp=__vsg&q="+encodeURIComponent(v);
-    sc.onload=sc.onerror=()=>sc.remove();document.head.appendChild(sc)},200);
-});
 $("vdDel").onclick=async()=>{
   const k=vkey();
   await vDel("v:"+k);
-  delete VD.act[k];delete VD.yt[k];delete VD.name[k];delete VD.loop[k];delete VD.mode[k];delete vdPaused[k];saveVD();
+  delete VD.act[k];delete VD.name[k];delete VD.loop[k];delete VD.mode[k];delete VD.vol[k];delete VD.mute[k];delete vdPaused[k];saveVD();
   vdRefresh(true);vdUI();bgmResume();closeS("sVd");toast("Fondo animado quitado");
 };
 
