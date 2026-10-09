@@ -167,6 +167,8 @@ body.vs #vdBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
 #sVd .sh{max-height:92vh;max-height:92dvh;overflow-y:auto}
 .vdvol{display:flex;gap:12px;align-items:center;margin-bottom:6px}
 #vdHint{margin:6px 0 14px}
+.vdvol .wv{flex:none;width:46px;height:46px;border-radius:50%;background:var(--sf);border:1px solid var(--ln);display:flex;align-items:center;justify-content:center;color:var(--gold)}
+.vdvol .wv svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .vdvol button{flex:none;padding:11px 14px;font-weight:600}
 .vdvol input[type=range]{flex:1;width:auto;min-width:0;margin:0!important}
 </style>
@@ -279,6 +281,8 @@ body.vs #vdBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
     <div class="tm"><span id="auCur">0:00</span><span id="auLeft">-0:00</span></div>
     <div class="pc"><button id="auBack" aria-label="Atrasar 10 segundos">↺ 10</button><button class="solid" id="auPlay" aria-label="Pausar o reanudar"></button><button id="auFwd" aria-label="Adelantar 10 segundos">10 ↻</button></div>
     <div class="srow"><div><b>Bucle</b><small>Repetir esta canción</small></div><button class="sw" id="auLoop" role="switch" aria-checked="false" aria-label="Bucle"></button></div>
+    <p class="sl" style="margin-top:14px">Volumen de la música: <span id="auVolTxt">100 %</span></p>
+    <div class="vdvol"><span class="wv" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 10v4M7 6.5v11M10.5 9.5v5M14 3v18M17.5 7v10M21 10v4"/></svg></span><input type="range" id="auVol" min="0" max="100" value="100" aria-label="Volumen de la música"></div>
   </div>
   <div class="col" style="margin-top:12px"><button class="solid" id="auPick">Elegir audio</button><input type="file" id="auFile" accept="audio/*" hidden><button id="auDel" style="color:var(--r)">Quitar música</button><button data-close>Cerrar</button></div>
 </div></div>
@@ -707,7 +711,8 @@ const SPK='<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5
 const PAUSE='<path d="M8 5v14M16 5v14"/>';
 let AK=new Set(),caId=null,pendAu=null;
 let AU;try{AU=JSON.parse(localStorage.getItem("voltea_au"))}catch(e){}
-AU=Object.assign({loop:{},name:{}},AU);
+AU=Object.assign({loop:{},name:{},vol:{}},AU);
+const auVolOf=k=>AU.vol[k]==null?1:AU.vol[k];
 const saveAU=()=>{try{localStorage.setItem("voltea_au",JSON.stringify(AU))}catch(e){}};
 const dbp=new Promise(res=>{try{const r=indexedDB.open("voltea_audio",1);r.onupgradeneeded=()=>r.result.createObjectStore("a");r.onsuccess=()=>res(r.result);r.onerror=()=>res(null)}catch(e){res(null)}});
 const tx=(m,fn)=>dbp.then(db=>{if(!db)throw 0;return new Promise((ok,no)=>{const t=db.transaction("a",m),r=fn(t.objectStore("a"));t.oncomplete=()=>ok(r.result);t.onerror=t.onabort=()=>no(t.error)})});
@@ -732,7 +737,7 @@ async function syncAudio(force){
       const b=await aGet(k);
       if(auKey!==k)return;
       if(b){
-        auURL=URL.createObjectURL(b);bgm.src=auURL;bgm.loop=!!AU.loop[k];
+        auURL=URL.createObjectURL(b);bgm.src=auURL;bgm.loop=!!AU.loop[k];bgm.volume=auVolOf(k);
         const p=auPos[k]||0;
         bgm.onloadedmetadata=()=>{if(p&&p<bgm.duration)bgm.currentTime=p};
         if(!auOff[k]&&cardA.paused&&!vidSnd())bgm.play().catch(()=>{});
@@ -751,12 +756,14 @@ function auUI(){
   $("auPick").textContent=has?"Cambiar audio":"Elegir audio";
   $("auPlay").innerHTML=svg(bgm.paused?PLAY:PAUSE);
   $("auLoop").setAttribute("aria-checked",String(bgm.loop));
+  $("auVol").value=Math.round(auVolOf(k)*100);$("auVolTxt").textContent=Math.round(auVolOf(k)*100)+" %";
   const d=bgm.duration||0;
   $("auSeek").value=d?bgm.currentTime/d*1000:0;
   $("auCur").textContent=mmss(bgm.currentTime);
   $("auLeft").textContent="-"+mmss(d-bgm.currentTime);
 }
 ["play","pause","timeupdate","loadedmetadata","ended"].forEach(e=>bgm.addEventListener(e,auUI));
+$("auVol").oninput=()=>{const k=auSec(),v=$("auVol").value/100;AU.vol[k]=v;bgm.volume=v;saveAU();auUI()};
 $("auBtn").onclick=()=>{openS("sAu");auUI()};
 $("auPlay").onclick=()=>{const k=auSec();if(bgm.paused){if(vidSnd()){toast("Silencia el video de fondo para escuchar la música");return}auOff[k]=false;bgm.play().catch(()=>{})}else{auOff[k]=true;bgm.pause()}};
 $("auBack").onclick=()=>{bgm.currentTime=Math.max(0,bgm.currentTime-10)};
@@ -769,7 +776,7 @@ $("auFile").onchange=e=>{
   const k=auSec();
   aPut(k,f).then(()=>{AU.name[k]=f.name;saveAU();auOff[k]=false;delete auPos[k];return syncAudio(true)}).catch(()=>toast("No se pudo guardar el audio"));
 };
-$("auDel").onclick=()=>{const k=auSec();aDel(k).then(()=>{delete AU.name[k];delete AU.loop[k];saveAU();return syncAudio(true)})};
+$("auDel").onclick=()=>{const k=auSec();aDel(k).then(()=>{delete AU.name[k];delete AU.loop[k];delete AU.vol[k];saveAU();return syncAudio(true)})};
 
 /* Audio de tarjeta: sin bucle; pausa la música de la carpeta mientras suena y luego la retoma */
 function cauUI(){$("cardAu").innerHTML=svg(!cardA.paused&&current&&cardCur===current.id?PAUSE:PLAY)}
