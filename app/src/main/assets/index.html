@@ -302,6 +302,7 @@ body.vs #vdBtn{bottom:calc(104px + env(safe-area-inset-bottom))}
   <p class="sl">Ajuste del video</p><div class="vseg"><button data-m="cover">Rellenar</button><button data-m="fill">Estirar</button><button data-m="fit">Centrada</button></div>
   <div id="vdCtl" hidden>
     <p class="sl" id="vdName"></p>
+    <p class="sl" id="vdErr" hidden style="color:var(--r);word-break:break-word"></p>
     <div class="pc"><button id="vdBack" aria-label="Atrasar 10 segundos">↺ 10</button><button class="solid" id="vdPlay" aria-label="Pausar o reanudar"></button><button id="vdFwd" aria-label="Adelantar 10 segundos">10 ↻</button></div>
     <div class="srow"><div><b>Bucle</b><small>Repetir el video (local o de YouTube)</small></div><button class="sw" id="vdLoop" role="switch" aria-checked="false" aria-label="Bucle"></button></div>
   </div>
@@ -834,7 +835,7 @@ let VD;try{VD=JSON.parse(localStorage.getItem(VDK))}catch(e){}
 VD=Object.assign({act:{},yt:{},name:{},loop:{},mode:{}},VD);
 const saveVD=()=>{try{localStorage.setItem(VDK,JSON.stringify(VD))}catch(e){}};
 const bgv=$("bgv"),VFIT={cover:"cover",fill:"fill",fit:"contain"};
-let vidOn=false,vdURL=null,vdTok=0,vdLoaded=null,vdFail=null;const vdPaused={};
+let vidOn=false,vdURL=null,vdTok=0,vdLoaded=null,vdFail=null,vdErr="",vdHlsObj=null;const vdPaused={};
 const vkey=()=>bgKey();
 const vPut=(k,b)=>tx("readwrite",s=>s.put(b,k)),vGet=k=>tx("readonly",s=>s.get(k)),vDel=k=>tx("readwrite",s=>s.delete(k)).catch(()=>{});
 bgv.disablePictureInPicture=true;bgv.controls=false;
@@ -847,15 +848,19 @@ const srvMark=(l,ok)=>{const x=SST[l]||(SST[l]={ok:0,fail:0,t:0,good:false});
   if(ok){x.ok=Math.min(x.ok+1,20);x.fail=Math.max(0,x.fail-1);x.good=true}else{x.fail=Math.min(x.fail+1,10);x.good=false}
   x.t=Date.now();try{localStorage.setItem("voltea_srv",JSON.stringify(SST))}catch(e){}};
 async function jget(u,sig){const r=await fetch(u,{signal:sig});if(!r.ok)throw new Error(r.status);return r.json()}
-async function tryAll(fn){
-  let err;
+async function tryAll(fn,ms){
+  const errs=[];
   for(const line of [...SRV].sort((a,b)=>srvScore(b)-srvScore(a))){
     const[t,...r]=line.split(" "),base=r.join(" ").replace(/\/$/,"");
-    const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),9000);
+    const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms||9000);
     try{const res=await fn(t,base,ctl.signal);clearTimeout(to);srvMark(line,true);return res}
-    catch(e){clearTimeout(to);err=e;srvMark(line,false)}
+    catch(e){
+      clearTimeout(to);srvMark(line,false);
+      const m=e&&e.name==="AbortError"?"tiempo agotado":/^\d+$/.test(e&&e.message)?"HTTP "+e.message:(e&&e.message)||"error";
+      errs.push(base.replace(/^https?:\/\//,"")+": "+m);
+    }
   }
-  throw err||new Error("Sin servidores");
+  throw new Error(errs.join(" · ")||"sin servidores");
 }
 function ytId(s){
   s=s.trim();
@@ -875,20 +880,36 @@ const ytSearch=q=>tryAll(async(t,b,sig)=>{
   return d.filter(x=>x.videoId).map(x=>({id:x.videoId,title:x.title,by:x.author,dur:x.lengthSeconds}));
 });
 const ytStream=id=>tryAll(async(t,b,sig)=>{
-  let list=[],title="";
-  if(t==="p"){const s=await jget(`${b}/streams/${id}`,sig);title=s.title||"";
+  let list=[],title="",hls="";
+  if(t==="p"){const s=await jget(`${b}/streams/${id}`,sig);title=s.title||"";hls=s.hls||"";
     list=(s.videoStreams||[]).filter(x=>!x.videoOnly&&x.url).map(x=>({u:x.url,h:parseInt(x.quality)||0,m:x.mimeType}))}
-  else{const s=await jget(`${b}/api/v1/videos/${id}`,sig);title=s.title||"";
+  else{const s=await jget(`${b}/api/v1/videos/${id}?local=true`,sig);title=s.title||"";
     list=(s.formatStreams||[]).map(x=>({u:x.url.startsWith("http")?x.url:b+x.url,h:parseInt(x.qualityLabel)||0,m:x.type}))}
   list=list.filter(x=>!x.m||bgv.canPlayType(x.m));
-  if(!list.length)throw new Error("sin formato compatible");
-  list.sort((a,b)=>a.h-b.h);
-  const pick=list.find(x=>x.h>=360)||list[list.length-1];   /* calidad moderada: ahorra datos y batería */
-  return{url:pick.u,title};
-});
+  if(list.length){
+    list.sort((a,b)=>a.h-b.h);
+    const pick=list.find(x=>x.h>=360)||list[list.length-1];   /* calidad moderada: ahorra datos y batería */
+    return{url:pick.u,title};
+  }
+  if(hls)return{url:hls,title,hls:true};                        /* sin formato directo: lista HLS */
+  throw new Error("este video no ofrece un formato reproducible");
+},20000);
+async function vdHls(url,tok){
+  if(bgv.canPlayType("application/vnd.apple.mpegurl")){bgv.src=url;return}
+  if(!window.Hls){
+    await new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js";sc.onload=res;sc.onerror=()=>rej(new Error("no se pudo cargar el reproductor HLS"));document.head.appendChild(sc)});
+  }
+  if(tok!==vdTok)return;
+  if(!window.Hls||!Hls.isSupported())throw new Error("el video solo está en HLS y este dispositivo no lo admite");
+  if(vdHlsObj){vdHlsObj.destroy();vdHlsObj=null}
+  const h=vdHlsObj=new Hls({capLevelToPlayerSize:true,maxBufferLength:20});
+  h.on(Hls.Events.ERROR,(e,d)=>{if(d&&d.fatal){vdErr="error al reproducir la lista HLS ("+(d.details||"?")+")";bgv.dispatchEvent(new Event("error"))}});
+  h.loadSource(url);h.attachMedia(bgv);
+}
 
 /* Estado del video de fondo */
 function vdClear(){
+  if(vdHlsObj){try{vdHlsObj.destroy()}catch(e){}vdHlsObj=null}
   vidOn=false;vdTok++;bgv.pause();bgv.classList.remove("on");bgv.removeAttribute("src");bgv.load();
   if(vdURL){URL.revokeObjectURL(vdURL);vdURL=null}
   vdLoaded=null;
@@ -905,23 +926,25 @@ async function applyVid(force){
   if(!force&&vdLoaded===sig&&bgv.getAttribute("src")){bgv.classList.add("on");if(!vdPaused[k])bgv.play().catch(()=>{});return}
   const tok=++vdTok;vdLoaded=null;
   try{
-    let src;
+    let src,hlsMode=false;
     if(act==="local"){
       const b=await vGet("v:"+k);if(tok!==vdTok)return;if(!b)throw new Error("sin video");
       if(vdURL)URL.revokeObjectURL(vdURL);vdURL=URL.createObjectURL(b);src=vdURL;
     }else{
-      const r=await ytStream(VD.yt[k].id);if(tok!==vdTok)return;src=r.url;
+      const r=await ytStream(VD.yt[k].id);if(tok!==vdTok)return;src=r.url;hlsMode=!!r.hls;
       if(!VD.yt[k].title&&r.title){VD.yt[k].title=r.title;saveVD();vdUI()}
     }
-    bgv.src=src;vdLoaded=sig;bgv.classList.add("on");
+    if(hlsMode)await vdHls(src,tok);else bgv.src=src;
+    if(tok!==vdTok)return;
+    vdLoaded=sig;bgv.classList.add("on");
     if(!vdPaused[k])bgv.play().catch(()=>{});
   }catch(e){
     if(tok!==vdTok)return;
-    vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");
+    vdErr=(e&&e.message)||"error";vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");vdUI();
     toast(act==="url"?"No se pudo cargar el video de YouTube":"No se pudo cargar el video");
   }
 }
-bgv.addEventListener("error",()=>{if(!vidOn||!bgv.getAttribute("src"))return;const k=vkey();vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");toast("No se pudo reproducir el video de fondo")});
+bgv.addEventListener("error",()=>{if(!vidOn||!bgv.getAttribute("src"))return;const k=vkey();if(!vdErr||vdErr.startsWith("No se"))vdErr="el video no se pudo reproducir";vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");toast("No se pudo reproducir el video de fondo")});
 document.addEventListener("visibilitychange",()=>{
   if(!vidOn||!bgv.getAttribute("src"))return;
   if(document.hidden)bgv.pause();else if(!vdPaused[vkey()])bgv.play().catch(()=>{});
@@ -936,6 +959,7 @@ function vdUI(){
   document.querySelectorAll(".vseg button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
   $("vdCtl").hidden=!act;$("vdDel").hidden=!act;
   $("vdName").textContent=act==="url"?"YouTube: "+(VD.yt[k].title||VD.yt[k].id):act==="local"?"Video: "+(VD.name[k]||"del dispositivo"):"";
+  $("vdErr").hidden=!(act&&vdFail===k);$("vdErr").textContent="No se pudo cargar: "+vdErr+". Toca ▶ para reintentar.";
   $("vdPlay").innerHTML=svg(bgv.paused?PLAY:PAUSE);
   $("vdLoop").setAttribute("aria-checked",String(!!VD.loop[k]));
 }
@@ -944,7 +968,7 @@ $("vdBtn").onclick=()=>{$("vdRes").textContent="";openS("sVd");vdUI()};
 document.querySelectorAll(".vseg button").forEach(b=>b.onclick=()=>{const k=vkey();VD.mode[k]=b.dataset.m;saveVD();bgv.style.objectFit=VFIT[b.dataset.m];vdUI()});
 $("vdBack").onclick=()=>{bgv.currentTime=Math.max(0,bgv.currentTime-10)};
 $("vdFwd").onclick=()=>{const d=bgv.duration,t=bgv.currentTime+10;bgv.currentTime=isFinite(d)?Math.min(d,t):t};
-$("vdPlay").onclick=()=>{const k=vkey();if(bgv.paused){delete vdPaused[k];bgv.play().catch(()=>{})}else{vdPaused[k]=true;bgv.pause()}};
+$("vdPlay").onclick=()=>{const k=vkey();if(vdFail===k){vdFail=null;vdErr="";delete vdPaused[k];vdRefresh(true);vdUI();return}if(bgv.paused){delete vdPaused[k];bgv.play().catch(()=>{})}else{vdPaused[k]=true;bgv.pause()}};
 $("vdLoop").onclick=()=>{const k=vkey();VD.loop[k]=!VD.loop[k];bgv.loop=!!VD.loop[k];saveVD();vdUI()};
 $("vdPick").onclick=()=>$("vdFile").click();
 $("vdFile").onchange=e=>{
@@ -973,7 +997,7 @@ async function vdSearch(){
       b.firstChild.textContent=x.title;b.lastChild.textContent=[x.by,x.dur?mmss(x.dur):""].filter(Boolean).join(" · ");
       b.onclick=()=>vdSetYt(x);box.appendChild(b);
     });
-  }catch(e){box.textContent="No se pudo buscar. Revisa tu conexión."}
+  }catch(e){box.textContent="No se pudo buscar: "+((e&&e.message)||"sin conexión")}
 }
 $("vdGo").onclick=vdSearch;
 $("vdQ").addEventListener("keydown",e=>{if(e.key==="Enter")vdSearch()});

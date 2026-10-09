@@ -48,14 +48,15 @@ public class MainActivity extends Activity {
     }
 
     static WebResourceResponse proxy(WebResourceRequest r) {
-        String origin = header(r, "Origin");
-        if (origin == null || !origin.equals(APP_ORIGIN)) return null;
         String host = r.getUrl().getHost();
         boolean ok = false;
         for (String h : SERVERS) {
             if (h.equals(host)) ok = true;
         }
         if (!ok) return null;
+        // Solo las consultas de la API (no los videos), para que la reproducción siga su camino normal
+        String path = r.getUrl().getPath();
+        if (path == null || !(path.startsWith("/api/v1/") || path.startsWith("/streams/") || path.startsWith("/search"))) return null;
 
         String m = r.getMethod();
         Map<String, String> cors = new HashMap<>();
