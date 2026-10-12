@@ -212,8 +212,8 @@ textarea{min-height:90px;resize:vertical}
 .qbtn{width:46px;height:46px;padding:0;border-radius:14px;color:var(--gold-hi);background:var(--sf2);flex:none}
 .qbtn:active{background:var(--sf3)}
 .qbtn svg{width:22px;height:22px}
-.pc #auPrev,.pc #auNext{flex:.6}
-#sPl{background:#08060466}
+.pc #auPrev,.pc #auNext,.pc #vdPrev,.pc #vdNext{flex:.6}
+#sPl,#sVl{background:#08060466}
 .sh.pl{display:flex;flex-direction:column;height:min(74vh,640px);height:min(74dvh,640px);padding:20px 0 0;overflow:hidden}
 .sh.pl::before{flex:none}
 .plh{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 20px 12px;flex:none}
@@ -224,7 +224,7 @@ textarea{min-height:90px;resize:vertical}
 .plh button{flex:none;min-height:40px;padding:0 18px;border-radius:999px;font-weight:600;font-size:14px;background:var(--sf2)}
 .plh button.on{border-color:var(--gold);color:var(--gold-hi);background:var(--gold-bg)}
 .plsc{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:2px 20px 26px;-webkit-mask-image:linear-gradient(#000 calc(100% - 22px),transparent);mask-image:linear-gradient(#000 calc(100% - 22px),transparent)}
-#plBox{position:relative}
+#plBox,#vlBox{position:relative}
 .qh{text-align:center;margin:6px 0 0}
 .qi{position:relative;display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:8px 6px 8px 8px;background:var(--sf);border:1px solid var(--ln);border-radius:18px;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:box-shadow .2s,border-color .2s,background-color .2s}
 .qi.shift{transition:transform .24s var(--ease),box-shadow .2s}
@@ -397,13 +397,24 @@ textarea{min-height:90px;resize:vertical}
   <div id="vdCtl" hidden>
     <p class="sl" id="vdName"></p>
     <p class="sl" id="vdErr" hidden style="color:var(--r)">No se pudo cargar el video. Toca ▶ para reintentar.</p>
-    <div class="pc"><button id="vdBack" aria-label="Atrasar 10 segundos">↺ 10</button><button class="solid" id="vdPlay" aria-label="Pausar o reanudar"></button><button id="vdFwd" aria-label="Adelantar 10 segundos">10 ↻</button></div>
-    <div class="srow"><div><b>Bucle</b><small>Repetir el video</small></div><button class="sw" id="vdLoop" role="switch" aria-checked="false" aria-label="Bucle"></button></div>
+    <div class="pc"><button id="vdPrev" aria-label="Video anterior" hidden><svg viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4"/><path d="M5 19V5"/></svg></button><button id="vdBack" aria-label="Atrasar 10 segundos">↺ 10</button><button class="solid" id="vdPlay" aria-label="Pausar o reanudar"></button><button id="vdFwd" aria-label="Adelantar 10 segundos">10 ↻</button><button id="vdNext" aria-label="Video siguiente" hidden><svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20"/><path d="M19 5v14"/></svg></button></div>
+    <div class="srow"><div><b>Bucle</b><small>Repetir este video</small></div><button class="sw" id="vdLoop" role="switch" aria-checked="false" aria-label="Bucle"></button></div>
+    <div class="srow" id="vdListRow"><div><b>Lista de reproducción</b><small id="vdListSub">Sin videos</small></div><button class="qbtn" id="vdList" aria-label="Abrir lista de reproducción"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="7" rx="3.5"/><path d="M4 16.5h16"/></svg></button></div>
     <p class="sl" style="margin-top:14px">Volumen del video: <span id="vdVolTxt">100 %</span></p>
     <div class="vdvol"><button id="vdMute">Silenciar</button><input type="range" id="vdVol" min="0" max="100" value="100" aria-label="Volumen del video"></div>
     <p class="sl" id="vdHint"></p>
   </div>
-  <div class="col"><button class="solid" id="vdPick">Elegir video del dispositivo</button><input type="file" id="vdFile" accept="video/*" hidden><button id="vdDel" style="color:var(--r)" hidden>Quitar fondo animado</button><button data-close>Cerrar</button></div>
+  <div class="col"><button class="solid" id="vdPick">Elegir video del dispositivo</button><input type="file" id="vdFile" accept="video/*" multiple hidden><button id="vdDel" style="color:var(--r)" hidden>Quitar fondo animado</button><button data-close>Cerrar</button></div>
+</div></div>
+
+<div class="sheet" id="sVl"><div class="sh pl">
+  <div class="plh"><div><h2>Lista de reproducción</h2><p class="sl" id="vlSub"></p></div><button id="vlEdit" type="button">Editar</button></div>
+  <div class="plsc" id="vlSc"><div id="vlBox"></div><p class="sl qh" id="vlHint" hidden>Arrastra ⠿ para reordenar</p></div>
+  <div class="plf">
+    <button id="vlShuf" type="button" aria-pressed="false" aria-label="Modo aleatorio"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg><span>Aleatorio</span></button>
+    <button id="vlRep" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="m17 1 4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="m7 23-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>Bucle</span></button>
+    <button id="vlAdd" type="button"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Agregar</span></button>
+  </div>
 </div></div>
 
 <div id="toast" role="status"></div>
@@ -795,7 +806,7 @@ $("mSave").onclick=()=>{
 $("mReset").onclick=()=>{deck().cards.forEach(c=>c.w=1);save();renderEdit();closeS("sMaz");toast("Niveles reiniciados")};
 $("mDel").onclick=()=>{
   if(!confirm(`¿Borrar la carpeta “${deck().name}” y sus tarjetas?`))return;
-  dropList("d:"+deckId);aDel("d:"+deckId);deck().cards.forEach(c=>aDel("c:"+c.id));delete BG["e:"+deckId];delete BG["s:"+deckId];delete BG["m:e:"+deckId];delete BG["m:s:"+deckId];saveBG();S.decks=S.decks.filter(d=>d.id!==deckId);save();closeS("sMaz");home();
+  dropList("d:"+deckId);dropVList("e:"+deckId);dropVList("s:"+deckId);aDel("d:"+deckId);deck().cards.forEach(c=>aDel("c:"+c.id));delete BG["e:"+deckId];delete BG["s:"+deckId];delete BG["m:e:"+deckId];delete BG["m:s:"+deckId];saveBG();S.decks=S.decks.filter(d=>d.id!==deckId);save();closeS("sMaz");home();
 };
 
 /* ---------- Duplicar mazo ---------- */
@@ -1210,17 +1221,27 @@ $("bgFile").onchange=e=>{
 };
 $("bgDel").onclick=()=>{delete BG[bgKey()];delete BG["m:"+bgKey()];saveBG();applyBg();closeS("sBg");toast("Fondo quitado")};
 
-/* ---------- Fondo animado: video del dispositivo (sin internet) ---------- */
+/* ---------- Fondo animado: lista de videos del dispositivo (sin internet) ----------
+   Una lista por pantalla (inicio, carpeta y estudio). VD.pl[k] = [{id,key,name}] · VD.cur[k] = id del video actual
+   VD.shuf / VD.rep = aleatorio y bucle de la lista (igual que en la música).
+   El video guardado con la versión anterior se convierte solo en el primer video de la lista. */
 const VDK="voltea_vd";
 let VD;try{VD=JSON.parse(localStorage.getItem(VDK))}catch(e){}
-VD=Object.assign({act:{},name:{},loop:{},mode:{},vol:{},mute:{}},VD);
+VD=Object.assign({act:{},name:{},loop:{},mode:{},vol:{},mute:{},pl:{},cur:{},shuf:{},rep:{}},VD);
 Object.keys(VD.act).forEach(k=>{if(VD.act[k]!=="local")delete VD.act[k]});   /* versión anterior: se descartan los videos de enlace */
 delete VD.yt;try{localStorage.removeItem("voltea_srv")}catch(e){}
 const saveVD=()=>{try{localStorage.setItem(VDK,JSON.stringify(VD))}catch(e){}};
+Object.keys(VD.act).forEach(k=>{if(!(VD.pl[k]&&VD.pl[k].length)){VD.pl[k]=[{id:"t0",key:"v:"+k,name:VD.name[k]||"Video"}];VD.cur[k]="t0"}});
+saveVD();
 const bgv=$("bgv"),VFIT={cover:"cover",fill:"fill",fit:"contain"};
-let vidOn=false,vdURL=null,vdTok=0,vdLoaded=null,vdFail=null;const vdPaused={};
+let vidOn=false,vdURL=null,vdTok=0,vdLoaded=null,vdFail=null,vdErr=0;const vdPaused={};
 const vkey=()=>bgKey();
 const vdVolOf=k=>VD.vol[k]==null?1:VD.vol[k];
+const vlOf=k=>VD.pl[k]||[];
+const vCur=k=>{const a=vlOf(k);return a.find(t=>t.id===VD.cur[k])||a[0]||null};
+const vName=t=>((t&&t.name)||"Video").replace(/\.[^.\/]+$/,"");
+const vExt=t=>{const m=/\.([^.\/]+)$/.exec((t&&t.name)||"");return m?m[1].toUpperCase():"Video"};
+const VIDI='<rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10.5 5-3v9l-5-3z"/>';
 /* El video "suena" si hay fondo animado, no está en mute y su volumen no es 0: solo entonces la música de fondo se calla */
 const vidSnd=()=>vidOn&&!VD.mute[vkey()]&&vdVolOf(vkey())>0;
 const vPut=(k,b)=>tx("readwrite",s=>s.put(b,k)),vGet=k=>tx("readonly",s=>s.get(k)),vDel=k=>tx("readwrite",s=>s.delete(k)).catch(()=>{});
@@ -1232,31 +1253,88 @@ function vdClear(){
   vdLoaded=null;
 }
 function bgmResume(){const k=auSec();if(!vidSnd()&&bgm.getAttribute("src")&&!auOff[k]&&cardA.paused)bgm.play().catch(()=>{})}
+function dropVList(k){
+  vlOf(k).forEach(t=>vDel(t.key));
+  ["pl","cur","act","name","loop","mode","vol","mute","shuf","rep"].forEach(f=>{delete VD[f][k]});
+  delete vShufOrd[k];delete vdPaused[k];saveVD();
+}
+
+/* Orden y siguiente video (normal o aleatorio): misma lógica que la lista de música */
+const vShufOrd={};
+function mkVShuf(k,first){
+  const ids=vlOf(k).map(t=>t.id).filter(i=>i!==first);
+  for(let i=ids.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
+  vShufOrd[k]=first?[first,...ids]:ids;
+}
+function vStepId(k,dir,auto){
+  const a=vlOf(k),n=a.length;if(!n)return null;
+  const cur=vCur(k).id;let ids;
+  if(VD.shuf[k]){
+    let o=vShufOrd[k];
+    if(!o||o.length!==n||!a.every(t=>o.includes(t.id))||!o.includes(cur)){mkVShuf(k,cur);o=vShufOrd[k]}
+    ids=o;
+  }else ids=a.map(t=>t.id);
+  let i=ids.indexOf(cur)+dir;
+  if(i>=n){
+    if(auto&&!VD.rep[k]&&!VD.shuf[k])return null;    /* sin bucle ni aleatorio, al terminar la lista se detiene */
+    if(VD.shuf[k]){                                  /* con aleatorio nunca termina: al acabar la ronda sigue con un orden nuevo */
+      mkVShuf(k,null);const o=vShufOrd[k];
+      if(n>1&&o[0]===cur)[o[0],o[1]]=[o[1],o[0]];
+      return o[0];
+    }
+    i=0;
+  }
+  if(i<0)i=n-1;
+  return ids[i];
+}
+function advanceV(dir,auto){
+  const k=vkey();if(!vlOf(k).length)return false;
+  const id=vStepId(k,dir,auto);
+  if(!id){vdUI();return false}
+  if(id===vCur(k).id){bgv.currentTime=0;bgv.play().catch(()=>{});return true}
+  playV(k,id,true);return true;
+}
+function playV(k,id,keep){
+  if(VD.shuf[k]&&!keep)mkVShuf(k,id);          /* al elegir uno de la lista, la ronda aleatoria empieza por él */
+  VD.cur[k]=id;saveVD();delete vdPaused[k];vdFail=null;
+  vdRefresh(true);vdUI();
+}
+/* Si un video falla y hay más en la lista, se salta al siguiente (sin dar vueltas infinitas) */
+function vSkip(k){
+  const L=vlOf(k);
+  if(L.length>1&&++vdErr<L.length){toast("No se pudo reproducir «"+vName(vCur(k))+"»");return advanceV(1,true)}
+  vdErr=0;return false;
+}
 async function applyVid(force){
-  const k=vkey(),act=VD.act[k];
+  const k=vkey(),t=vCur(k),act=VD.act[k]&&t;
   if(vdFail&&vdFail!==k)vdFail=null;
   $("vdBtn").classList.toggle("on",!!act&&vdFail!==k);
   if(!act||(vdFail===k&&!force)){vdClear();return}
   vdFail=null;vidOn=true;
   bgv.style.objectFit=VFIT[VD.mode[k]||"cover"];bgv.loop=!!VD.loop[k];vdAudio();
   if(vidSnd())bgm.pause();
-  const sig="local:"+k+":"+(VD.name[k]||"");
+  const sig="local:"+k+":"+t.id;
   if(!force&&vdLoaded===sig&&bgv.getAttribute("src")){bgv.classList.add("on");if(!vdPaused[k])bgv.play().catch(()=>{});return}
   const tok=++vdTok;vdLoaded=null;
   try{
-    const b=await vGet("v:"+k);if(tok!==vdTok)return;if(!b)throw new Error("sin video");
+    const b=await vGet(t.key);if(tok!==vdTok)return;if(!b)throw new Error("sin video");
     if(vdURL)URL.revokeObjectURL(vdURL);vdURL=URL.createObjectURL(b);
     bgv.src=vdURL;vdLoaded=sig;bgv.classList.add("on");
     if(!vdPaused[k])bgv.play().catch(()=>{});
   }catch(e){
     if(tok!==vdTok)return;
+    if(vSkip(k))return;
     vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");vdUI();toast("No se pudo cargar el video");
   }
 }
 bgv.addEventListener("error",()=>{
   if(!vidOn||!bgv.getAttribute("src"))return;
+  if(vSkip(vkey()))return;
   vdFail=vkey();vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");vdUI();toast("No se pudo reproducir el video de fondo");
 });
+bgv.addEventListener("playing",()=>{vdErr=0});
+/* Al terminar el video, el ciclo continúa con el siguiente (o el que toque en aleatorio) */
+bgv.addEventListener("ended",()=>{if(!vidOn||!bgv.getAttribute("src"))return;advanceV(1,true)});
 document.addEventListener("visibilitychange",()=>{
   if(!vidOn||!bgv.getAttribute("src"))return;
   if(document.hidden)bgv.pause();else if(!vdPaused[vkey()])bgv.play().catch(()=>{});
@@ -1265,14 +1343,18 @@ const vdRefresh=force=>{applyVid(force);paintBg()};
 
 /* Hoja del fondo animado */
 function vdUI(){
-  const k=vkey(),act=VD.act[k],m=VD.mode[k]||"cover";
+  const k=vkey(),act=VD.act[k],m=VD.mode[k]||"cover",L=vlOf(k),t=vCur(k);
+  vlWatch();
   if(!$("sVd").classList.contains("on"))return;
   $("vdTitle").textContent="Fondo animado de "+({home:"inicio",edit:"la carpeta",study:"estudio"}[curView]);
   document.querySelectorAll(".vseg button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
   $("vdCtl").hidden=!act;$("vdDel").hidden=!act;
-  $("vdName").textContent=act?"Video: "+(VD.name[k]||"del dispositivo"):"";
+  $("vdPick").textContent=act?"Agregar video del dispositivo":"Elegir video del dispositivo";
+  $("vdName").textContent=act?"Video: "+vName(t)+(L.length>1?"  ·  "+(L.indexOf(t)+1)+" de "+L.length:""):"";
   $("vdErr").hidden=!(act&&vdFail===k);
   $("vdPlay").innerHTML=svg(bgv.paused?PLAY:PAUSE);
+  $("vdPrev").hidden=$("vdNext").hidden=L.length<2;
+  $("vdListSub").textContent=L.length?plural(L.length,"video","videos"):"Sin videos";
   $("vdLoop").setAttribute("aria-checked",String(!!VD.loop[k]));
   const mu=!!VD.mute[k],vol=Math.round(vdVolOf(k)*100);
   $("vdMute").textContent=mu?"Activar sonido":"Silenciar";
@@ -1284,11 +1366,14 @@ $("vdBtn").onclick=()=>{openS("sVd");vdUI()};
 document.querySelectorAll(".vseg button").forEach(b=>b.onclick=()=>{const k=vkey();VD.mode[k]=b.dataset.m;saveVD();bgv.style.objectFit=VFIT[b.dataset.m];vdUI()});
 $("vdBack").onclick=()=>{bgv.currentTime=Math.max(0,bgv.currentTime-10)};
 $("vdFwd").onclick=()=>{const d=bgv.duration,t=bgv.currentTime+10;bgv.currentTime=isFinite(d)?Math.min(d,t):t};
-$("vdPlay").onclick=()=>{
+function vdToggle(){
   const k=vkey();
   if(vdFail===k){vdFail=null;delete vdPaused[k];vdRefresh(true);vdUI();return}
   if(bgv.paused){delete vdPaused[k];bgv.play().catch(()=>{})}else{vdPaused[k]=true;bgv.pause()}
-};
+}
+$("vdPlay").onclick=vdToggle;
+$("vdPrev").onclick=()=>{if(bgv.currentTime>3)bgv.currentTime=0;else advanceV(-1,false)};
+$("vdNext").onclick=()=>advanceV(1,false);
 $("vdLoop").onclick=()=>{const k=vkey();VD.loop[k]=!VD.loop[k];bgv.loop=!!VD.loop[k];saveVD();vdUI()};
 $("vdMute").onclick=()=>{
   const k=vkey();VD.mute[k]=!VD.mute[k];saveVD();vdAudio();
@@ -1302,18 +1387,100 @@ $("vdVol").oninput=()=>{
   if(vidSnd())bgm.pause();
   vdUI();
 };
+
+/* Agregar y quitar videos */
 $("vdPick").onclick=()=>$("vdFile").click();
-$("vdFile").onchange=e=>{
-  const f=e.target.files[0];e.target.value="";if(!f)return;
-  const k=vkey();
-  vPut("v:"+k,f).then(()=>{VD.act[k]="local";VD.name[k]=f.name;delete vdPaused[k];saveVD();vdRefresh(true);vdUI();toast("Fondo animado guardado")})
-    .catch(()=>toast("No se pudo guardar el video"));
-};
-$("vdDel").onclick=async()=>{
-  const k=vkey();
-  await vDel("v:"+k);
-  delete VD.act[k];delete VD.name[k];delete VD.loop[k];delete VD.mode[k];delete VD.vol[k];delete VD.mute[k];delete vdPaused[k];saveVD();
+$("vdFile").onchange=e=>{const f=[...e.target.files];e.target.value="";addVideos(f)};
+async function addVideos(files){
+  if(!files.length)return;
+  const k=vkey(),a=vlOf(k).slice(),was=a.length;let ok=0,bad=0;
+  for(const f of files){
+    const key="vp:"+uid();
+    try{await vPut(key,f);a.push({id:uid(),key,name:f.name||"Video"});ok++}catch(e){bad++}
+  }
+  if(!ok){toast("No se pudo guardar el video");return}
+  VD.pl[k]=a;VD.act[k]="local";
+  if(!was){VD.cur[k]=a[0].id;if(VD.shuf[k])mkVShuf(k,a[0].id);delete vdPaused[k];vdFail=null;vdErr=0;saveVD();vdRefresh(true)}
+  else saveVD();
+  vdUI();
+  if($("sVl").classList.contains("on"))renderVl();
+  toast(bad?plural(ok,"video agregado","videos agregados")+" · "+bad+" fallaron":plural(ok,"video agregado","videos agregados"));
+}
+function removeVideo(k,id){
+  const a=vlOf(k),i=a.findIndex(t=>t.id===id);if(i<0)return;
+  const wasCur=vCur(k).id===id,[t]=a.splice(i,1);
+  vDel(t.key);
+  if(!a.length){dropVList(k);vdRefresh(true);bgmResume()}
+  else{if(wasCur){VD.cur[k]=a[Math.min(i,a.length-1)].id;delete vdPaused[k];vdFail=null;vdErr=0}saveVD();if(wasCur)vdRefresh(true)}
+  renderVl();vdUI();
+}
+$("vdDel").onclick=()=>{
+  const k=vkey(),n=vlOf(k).length;
+  if(n>1&&!confirm("¿Quitar los "+n+" videos de la lista?"))return;
+  dropVList(k);
   vdRefresh(true);vdUI();bgmResume();closeS("sVd");toast("Fondo animado quitado");
+};
+
+/* Panel de la lista de reproducción de videos (idéntico al de la música) */
+let vlEdit=false,vlSig="";
+function vlBtns(){
+  const k=vkey();
+  [["vlShuf","shuf"],["vlRep","rep"]].forEach(([id,f])=>{$(id).classList.toggle("on",!!VD[f][k]);$(id).setAttribute("aria-pressed",String(!!VD[f][k]))});
+}
+function vlWatch(){
+  if(!$("sVl").classList.contains("on")||drag||settling)return;
+  const k=vkey(),t=vCur(k);
+  if(((t?t.id:"")+"|"+bgv.paused+"|"+vlOf(k).length)!==vlSig)renderVl();
+}
+function renderVl(){
+  const k=vkey(),a=vlOf(k),cur=vCur(k),box=$("vlBox");
+  vlSig=(cur?cur.id:"")+"|"+bgv.paused+"|"+a.length;
+  if(!a.length)vlEdit=false;
+  const sub=$("vlSub");sub.textContent="";
+  if(cur){sub.append(bgv.paused?"En pausa · ":"Reproduciendo ");const b=document.createElement("b");b.textContent=vName(cur);sub.append(b)}
+  else sub.textContent="Sin videos";
+  $("vlEdit").hidden=!a.length;$("vlEdit").textContent=vlEdit?"Listo":"Editar";$("vlEdit").classList.toggle("on",vlEdit);
+  $("vlHint").hidden=a.length<2||vlEdit;
+  vlBtns();
+  box.innerHTML="";
+  if(!a.length){
+    const e=document.createElement("div");e.className="empty";
+    e.innerHTML='<div class="eic">'+svg(VIDI)+'</div><p></p>';
+    e.querySelector("p").textContent="Aún no hay videos. Toca Agregar para elegir varios de tu dispositivo.";
+    box.appendChild(e);return;
+  }
+  a.forEach(t=>{
+    const on=!!cur&&t.id===cur.id,el=document.createElement("div");
+    el.className="qi"+(on?" cur":"");el.dataset.id=t.id;el.tabIndex=0;el.setAttribute("role","button");
+    el.innerHTML='<div class="ic">'+svg(VIDI)+'</div><div class="qt"><b></b><small></small></div>'
+      +(vlEdit?'<button class="qd" type="button" aria-label="Quitar de la lista">'+svg(TRASH)+'</button>'
+        :on?'<button class="qp" type="button" aria-label="Pausar o reanudar">'+svg(bgv.paused?PLAY:PAUSE)+'</button>':'')
+      +'<button class="grip" type="button"'+(a.length<2?' hidden':'')+'>'+svg(GRIP)+'</button>';
+    el.querySelector("b").textContent=vName(t);
+    el.querySelector("small").textContent=vExt(t);
+    el.querySelector(".grip").setAttribute("aria-label","Mover «"+vName(t)+"». Arrastra, o usa las flechas arriba y abajo");
+    const qp=el.querySelector(".qp"),qd=el.querySelector(".qd");
+    if(qp)qp.onclick=vdToggle;
+    if(qd)qd.onclick=()=>removeVideo(k,t.id);
+    el.onclick=e=>{if(drag||settling||vlEdit||e.target.closest("button"))return;if(on)vdToggle();else playV(k,t.id)};
+    el.onkeydown=e=>{if(e.target===el&&(e.key==="Enter"||e.key===" ")){e.preventDefault();el.click()}};
+    box.appendChild(el);
+  });
+}
+const SORT_VL={box:$("vlBox"),sel:".qi",sc:$("vlSc"),arr:()=>VD.pl[vkey()],render:()=>renderVl(),label:o=>vName(o),save:saveVD};
+sortable(SORT_VL);
+$("vdList").onclick=()=>{vlEdit=false;renderVl();openS("sVl")};
+$("vdListRow").addEventListener("click",e=>{if(!e.target.closest("button"))$("vdList").click()});
+$("vlEdit").onclick=()=>{vlEdit=!vlEdit;renderVl()};
+$("vlAdd").onclick=()=>$("vdFile").click();
+$("vlShuf").onclick=()=>{
+  const k=vkey();VD.shuf[k]=!VD.shuf[k];
+  if(VD.shuf[k]){const t=vCur(k);mkVShuf(k,t&&t.id)}
+  saveVD();vlBtns();toast(VD.shuf[k]?"Modo aleatorio activado":"Modo aleatorio desactivado");
+};
+$("vlRep").onclick=()=>{
+  const k=vkey();VD.rep[k]=!VD.rep[k];
+  saveVD();vlBtns();toast(VD.rep[k]?"Bucle activado: la lista no se detiene":"Bucle desactivado");
 };
 
 /* Botón atrás de Android: cierra hojas, vuelve al inicio o limpia la búsqueda */
