@@ -5,9 +5,16 @@
 La app no pide permiso de internet: todo queda en el teléfono.
 
 ## Fondo animado (video del dispositivo)
-- Botón con un triángulo, a la izquierda del botón de fondo de imagen (entre el de música y el de imagen).
+- Botón con un ícono de cámara de video, en el centro del grupo de ajustes de ambiente (música · video · imagen), abajo a la derecha.
 - Cada pantalla (inicio, carpeta y estudio) tiene su propio fondo animado, igual que el de imagen.
 - Se elige un video del dispositivo. Opciones: ajuste, bucle, atrasar y adelantar 10 s, pausa, volumen, silenciar y "Quitar fondo animado" (vuelve el fondo de imagen).
 - Mientras el video suene, la música de fondo se detiene. Si silencias el video (o bajas su volumen a 0), puedes activar la música de fondo.
 - El video no responde a toques. No usa internet.
 
+
+## Ordenar carpetas
+- En el inicio, cada carpeta tiene un asa de seis puntos (⠿) a la derecha. Mantén el dedo sobre ella y arrastra la carpeta al lugar que quieras; las demás se acomodan solas.
+- También funciona con una pulsación larga sobre la carpeta (en cualquier parte que no sea un botón).
+- Al acercarte al borde de la pantalla, la lista se desplaza sola.
+- Con teclado o lector de pantalla: enfoca el asa y usa las flechas ↑ ↓.
+- El orden se guarda en el dispositivo y también va dentro de la copia de seguridad (.json).
