@@ -41,4 +41,4 @@ La app no pide permiso de internet: todo queda en el teléfono.
 - **Aleatorio**: el siguiente video se elige al azar, sin repetir hasta haber sonado todos. **Repetir**: al terminar el último vuelve a empezar; sin Repetir la lista se detiene. Los botones activos se ven en amarillo.
 - "Bucle" de las opciones sigue repitiendo solo el video actual. "Quitar fondo animado" quita también toda la lista.
 - Ajuste, volumen, silenciar y la regla de música/video funcionan igual que antes con cualquier video de la lista.
-- "Elegir video del dispositivo" ahora acepta varios videos a la vez: todos se agregan a la lista y el primero nuevo pasa a ser el fondo.
+- "Elegir video del dispositivo" elige un video: se agrega a la lista y pasa a ser el fondo. Para varios a la vez usa "Agregar" dentro de la lista (abre el selector de documentos del sistema; mantén pulsado un video para marcar varios).

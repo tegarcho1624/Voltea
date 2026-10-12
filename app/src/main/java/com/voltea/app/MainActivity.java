@@ -58,15 +58,34 @@ public class MainActivity extends Activity {
                 if (chooser != null) chooser.onReceiveValue(null);
                 chooser = cb;
                 try {
-                    startActivityForResult(p.createIntent(), REQ_FILE);
+                    startActivityForResult(buildIntent(p), REQ_FILE);
                 } catch (Exception e) {
-                    chooser = null;
-                    return false;
+                    try {
+                        startActivityForResult(p.createIntent(), REQ_FILE);
+                    } catch (Exception e2) {
+                        chooser = null;
+                        return false;
+                    }
                 }
                 return true;
             }
         });
         web.loadUrl("https://appassets.androidplatform.net/assets/index.html");
+    }
+
+    /** Para elegir VARIOS videos usa el selector de documentos del sistema (multi-selección fiable); el resto sigue igual. */
+    private Intent buildIntent(WebChromeClient.FileChooserParams p) {
+        boolean video = false;
+        String[] t = p.getAcceptTypes();
+        if (t != null) for (String x : t) if (x != null && x.startsWith("video")) video = true;
+        if (video && p.getMode() == WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE) {
+            Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            i.addCategory(Intent.CATEGORY_OPENABLE);
+            i.setType("video/*");
+            i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            return i;
+        }
+        return p.createIntent();
     }
 
     @Override
