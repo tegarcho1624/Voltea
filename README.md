@@ -22,3 +22,13 @@ La app no pide permiso de internet: todo queda en el teléfono.
 ## Ordenar tarjetas
 - En Editar, cada tarjeta tiene también su asa (⠿) a la izquierda: arrástrala para cambiarla de lugar, o mantén pulsado sobre el texto de la tarjeta.
 - Funciona igual que con las carpetas: autodesplazamiento en los bordes, flechas ↑ ↓ con teclado, y el orden queda guardado y dentro de la copia de seguridad.
+
+## Lista de reproducción (música de fondo)
+- En las opciones de audio (botón de la nota musical), debajo de "Bucle", está la fila "Lista de reproducción" con su botón (ícono de fila de reproducción). Al tocarlo se abre un panel que no ocupa toda la pantalla: si hay más canciones de las que caben, se desliza con el dedo para ver las de abajo.
+- Cada pantalla (inicio y cada carpeta) tiene su propia lista. El audio que ya tenías guardado pasa solo a ser la primera canción de la lista.
+- **Agregar**: elige una o varias canciones del dispositivo a la vez. **Editar**: muestra un botón para quitar cada canción.
+- **Orden**: arrastra el asa (⠿) de cada canción, o mantén pulsado sobre ella. Con teclado, enfoca el asa y usa ↑ ↓. Toca una canción para reproducirla; el botón redondo de la canción actual pausa o reanuda.
+- **Aleatorio**: la siguiente canción se elige al azar, sin repetir hasta haber sonado todas.
+- **Bucle**: el ciclo no se interrumpe al terminar el audio; continúa con la canción que sigue (o con el aleatorio si está activo) y, al llegar al final, vuelve a empezar. Sin bucle, la lista se detiene al terminar la última.
+- "Bucle" de las opciones de audio sigue repitiendo solo la canción actual.
+- Con más de una canción aparecen los botones de canción anterior / siguiente junto al reproductor.

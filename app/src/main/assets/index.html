@@ -208,6 +208,45 @@ textarea{min-height:90px;resize:vertical}
 .vdvol button{flex:none;padding:11px 14px;font-weight:600}
 .vdvol input[type=range]{flex:1;width:auto;min-width:0;margin:0!important}
 
+/* Lista de reproducción */
+.qbtn{width:46px;height:46px;padding:0;border-radius:14px;color:var(--gold-hi);background:var(--sf2);flex:none}
+.qbtn:active{background:var(--sf3)}
+.qbtn svg{width:22px;height:22px}
+.pc #auPrev,.pc #auNext{flex:.6}
+#sPl{background:#08060466}
+.sh.pl{display:flex;flex-direction:column;height:min(74vh,640px);height:min(74dvh,640px);padding:20px 0 0;overflow:hidden}
+.sh.pl::before{flex:none}
+.plh{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 20px 12px;flex:none}
+.plh>div{min-width:0}
+.plh h2{font-size:21px;margin:0}
+.plh .sl{margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plh .sl b{color:var(--ink);font-weight:600}
+.plh button{flex:none;min-height:40px;padding:0 18px;border-radius:999px;font-weight:600;font-size:14px;background:var(--sf2)}
+.plh button.on{border-color:var(--gold);color:var(--gold-hi);background:var(--gold-bg)}
+.plsc{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:2px 20px 26px;-webkit-mask-image:linear-gradient(#000 calc(100% - 22px),transparent);mask-image:linear-gradient(#000 calc(100% - 22px),transparent)}
+#plBox{position:relative}
+.qh{text-align:center;margin:6px 0 0}
+.qi{position:relative;display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:8px 6px 8px 8px;background:var(--sf);border:1px solid var(--ln);border-radius:18px;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:box-shadow .2s,border-color .2s,background-color .2s}
+.qi.shift{transition:transform .24s var(--ease),box-shadow .2s}
+.qi.lift{z-index:6;background:var(--sf2);border-color:var(--gold);box-shadow:0 20px 40px -14px #000b;will-change:transform}
+.qi.settle{z-index:6;transition:transform .22s var(--ease),box-shadow .2s}
+.qi.cur{background:var(--sf2);border-color:#c9a24b55}
+.qi .ic{width:44px;height:44px;border-radius:13px}
+.qt{flex:1;min-width:0}
+.qt b{display:block;font-weight:500;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qi.cur .qt b{color:var(--gold-hi)}
+.qt small{display:block;color:var(--mut);font-size:13px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qi .grip{width:40px;height:44px;margin:0}
+.qp{width:40px;height:40px;min-height:0;padding:0;border:0;border-radius:50%;background:var(--paper);color:var(--pi);flex:none}
+.qp:active{background:#e4d9bf}
+.qp svg{width:18px;height:18px}
+.qd{width:40px;height:40px;min-height:0;padding:0;border:0;border-radius:50%;background:none;color:var(--r);flex:none}
+.qd:active{background:#d17a6822}
+.plf{display:flex;gap:10px;flex:none;padding:12px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--ln);background:var(--sheet)}
+.plf button{flex:1;flex-direction:column;gap:5px;min-height:64px;padding:10px 4px;border-radius:16px;font-size:12px;font-weight:600;background:var(--sf2)}
+.plf button svg{width:22px;height:22px}
+.plf button.on{border-color:var(--gold);color:var(--gold-hi);background:var(--gold-bg)}
+
 #toast{position:fixed;top:calc(18px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:var(--sf3);border:1px solid var(--ln2);box-shadow:0 12px 32px -12px #000c;border-radius:14px;padding:13px 18px;font-size:14px;z-index:20;opacity:0;pointer-events:none;transition:opacity .2s;width:max-content;max-width:calc(100vw - 32px);text-align:center}
 #toast.on{opacity:1}
 [hidden]{display:none!important}
@@ -321,12 +360,23 @@ textarea{min-height:90px;resize:vertical}
   <div id="auCtl">
     <input type="range" id="auSeek" min="0" max="1000" value="0" aria-label="Progreso">
     <div class="tm"><span id="auCur">0:00</span><span id="auLeft">-0:00</span></div>
-    <div class="pc"><button id="auBack" aria-label="Atrasar 10 segundos">↺ 10</button><button class="solid" id="auPlay" aria-label="Pausar o reanudar"></button><button id="auFwd" aria-label="Adelantar 10 segundos">10 ↻</button></div>
+    <div class="pc"><button id="auPrev" aria-label="Canción anterior" hidden><svg viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4"/><path d="M5 19V5"/></svg></button><button id="auBack" aria-label="Atrasar 10 segundos">↺ 10</button><button class="solid" id="auPlay" aria-label="Pausar o reanudar"></button><button id="auFwd" aria-label="Adelantar 10 segundos">10 ↻</button><button id="auNext" aria-label="Canción siguiente" hidden><svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20"/><path d="M19 5v14"/></svg></button></div>
     <div class="srow"><div><b>Bucle</b><small>Repetir esta canción</small></div><button class="sw" id="auLoop" role="switch" aria-checked="false" aria-label="Bucle"></button></div>
+    <div class="srow" id="auListRow"><div><b>Lista de reproducción</b><small id="auListSub">Sin canciones</small></div><button class="qbtn" id="auList" aria-label="Abrir lista de reproducción"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="7" rx="3.5"/><path d="M4 16.5h16"/></svg></button></div>
     <p class="sl" style="margin-top:14px">Volumen de la música: <span id="auVolTxt">100 %</span></p>
     <div class="vdvol"><span class="wv" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 10v4M7 6.5v11M10.5 9.5v5M14 3v18M17.5 7v10M21 10v4"/></svg></span><input type="range" id="auVol" min="0" max="100" value="100" aria-label="Volumen de la música"></div>
   </div>
-  <div class="col" style="margin-top:12px"><button class="solid" id="auPick">Elegir audio</button><input type="file" id="auFile" accept="audio/*" hidden><button id="auDel" style="color:var(--r)">Quitar música</button><button data-close>Cerrar</button></div>
+  <div class="col" style="margin-top:12px"><button class="solid" id="auPick">Elegir audio</button><input type="file" id="auFile" accept="audio/*" multiple hidden><button id="auDel" style="color:var(--r)">Quitar música</button><button data-close>Cerrar</button></div>
+</div></div>
+
+<div class="sheet" id="sPl"><div class="sh pl">
+  <div class="plh"><div><h2>Lista de reproducción</h2><p class="sl" id="plSub"></p></div><button id="plEdit" type="button">Editar</button></div>
+  <div class="plsc" id="plSc"><div id="plBox"></div><p class="sl qh" id="plHint" hidden>Arrastra ⠿ para reordenar</p></div>
+  <div class="plf">
+    <button id="plShuf" type="button" aria-pressed="false" aria-label="Modo aleatorio"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg><span>Aleatorio</span></button>
+    <button id="plRep" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="m17 1 4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="m7 23-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>Bucle</span></button>
+    <button id="plAdd" type="button"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Agregar</span></button>
+  </div>
 </div></div>
 
 <div class="sheet" id="sCA"><div class="sh">
@@ -492,14 +542,14 @@ function endDrag(){
   d.el.classList.remove("lift");d.el.classList.add("settle");
   d.el.style.transform=`translate3d(0,${ty}px,0)`;
   setTimeout(()=>{
-    if(d.to!==d.from){const a=d.cfg.arr(),[m]=a.splice(d.from,1);a.splice(d.to,0,m);save();buzz(8)}
+    if(d.to!==d.from){const a=d.cfg.arr(),[m]=a.splice(d.from,1);a.splice(d.to,0,m);(d.cfg.save||save)();buzz(8)}
     document.body.classList.remove("dragging");settling=false;d.cfg.render();
   },230);
 }
 function moveItem(cfg,id,dir){
   const a=cfg.arr(),i=a.findIndex(o=>o.id===id),j=i+dir;
   if(i<0||j<0||j>=a.length)return;
-  const[m]=a.splice(i,1);a.splice(j,0,m);save();cfg.render();
+  const[m]=a.splice(i,1);a.splice(j,0,m);(cfg.save||save)();cfg.render();
   const el=[...cfg.box.querySelectorAll(cfg.sel)].find(x=>x.dataset.id===id),g=el&&el.querySelector(".grip");
   if(g)g.focus();
   toast("«"+cfg.label(m)+"»: posición "+(j+1)+" de "+a.length);
@@ -745,7 +795,7 @@ $("mSave").onclick=()=>{
 $("mReset").onclick=()=>{deck().cards.forEach(c=>c.w=1);save();renderEdit();closeS("sMaz");toast("Niveles reiniciados")};
 $("mDel").onclick=()=>{
   if(!confirm(`¿Borrar la carpeta “${deck().name}” y sus tarjetas?`))return;
-  aDel("d:"+deckId);deck().cards.forEach(c=>aDel("c:"+c.id));delete BG["e:"+deckId];delete BG["s:"+deckId];delete BG["m:e:"+deckId];delete BG["m:s:"+deckId];saveBG();S.decks=S.decks.filter(d=>d.id!==deckId);save();closeS("sMaz");home();
+  dropList("d:"+deckId);aDel("d:"+deckId);deck().cards.forEach(c=>aDel("c:"+c.id));delete BG["e:"+deckId];delete BG["s:"+deckId];delete BG["m:e:"+deckId];delete BG["m:s:"+deckId];saveBG();S.decks=S.decks.filter(d=>d.id!==deckId);save();closeS("sMaz");home();
 };
 
 /* ---------- Duplicar mazo ---------- */
@@ -765,7 +815,7 @@ $("dOk").onclick=()=>{
   })};
   S.decks.splice(S.decks.indexOf(src)+1,0,copy);
   src.cards.forEach((c,i)=>{if(AK.has("c:"+c.id))aGet("c:"+c.id).then(b=>aPut("c:"+copy.cards[i].id,b)).catch(()=>{})});
-  if(AK.has("d:"+src.id))aGet("d:"+src.id).then(b=>aPut("d:"+copy.id,b)).catch(()=>{});
+  copyList("d:"+src.id,"d:"+copy.id);
   save();closeS("sDup");toast("Mazo duplicado");openEdit(copy.id);
 };
 
@@ -859,7 +909,7 @@ const SPK='<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5
 const PAUSE='<path d="M8 5v14M16 5v14"/>';
 let AK=new Set(),caId=null,pendAu=null;
 let AU;try{AU=JSON.parse(localStorage.getItem("voltea_au"))}catch(e){}
-AU=Object.assign({loop:{},name:{},vol:{}},AU);
+AU=Object.assign({loop:{},name:{},vol:{},pl:{},cur:{},shuf:{},rep:{}},AU);
 const auVolOf=k=>AU.vol[k]==null?1:AU.vol[k];
 const saveAU=()=>{try{localStorage.setItem("voltea_au",JSON.stringify(AU))}catch(e){}};
 const dbp=new Promise(res=>{try{const r=indexedDB.open("voltea_audio",1);r.onupgradeneeded=()=>r.result.createObjectStore("a");r.onsuccess=()=>res(r.result);r.onerror=()=>res(null)}catch(e){res(null)}});
@@ -868,22 +918,100 @@ const aGet=k=>tx("readonly",s=>s.get(k));
 const aPut=(k,b)=>tx("readwrite",s=>s.put(b,k)).then(()=>{AK.add(k)});
 const aDel=k=>tx("readwrite",s=>s.delete(k)).then(()=>{AK.delete(k)}).catch(()=>{});
 
-/* Música de fondo: una por sección (inicio) y una por carpeta */
+/* Música de fondo: una lista de reproducción por sección (inicio) y por carpeta.
+   AU.pl[k] = [{id,key,name}] · AU.cur[k] = id de la canción actual · AU.shuf/AU.rep = aleatorio y bucle de la lista.
+   Los audios guardados con la versión anterior se convierten solos en la primera canción de la lista. */
 const bgm=new Audio(),cardA=new Audio();
-let auKey=null,auURL=null,auPos={},auOff={},duck=false,cardCur=null,cardURL=null;
+let auKey=null,auURL=null,auPos={},auOff={},duck=false,cardCur=null,cardURL=null,auTok=0,auErr=0;
 const auSec=()=>curView==="home"?"home":"d:"+deckId;
 const mmss=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+const plOf=k=>AU.pl[k]||[];
+const curTrack=k=>{const a=plOf(k);return a.find(t=>t.id===AU.cur[k])||a[0]||null};
+const trName=t=>((t&&t.name)||"Audio").replace(/\.[^.\/]+$/,"");
+const trExt=t=>{const m=/\.([^.\/]+)$/.exec((t&&t.name)||"");return m?m[1].toUpperCase():"Audio"};
+const NOTE='<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>';
+function migrateAU(){
+  let ch=false;
+  AK.forEach(key=>{
+    if((key==="home"||key.startsWith("d:"))&&!plOf(key).length){AU.pl[key]=[{id:"t0",key,name:AU.name[key]||"Audio"}];AU.cur[key]="t0";ch=true}
+  });
+  if(ch)saveAU();
+}
+function dropList(k){
+  plOf(k).forEach(t=>aDel(t.key));
+  ["pl","cur","name","loop","vol","shuf","rep"].forEach(f=>{delete AU[f][k]});
+  delete shufOrd[k];delete auPos[k];saveAU();
+}
+async function copyList(from,to){
+  const src=plOf(from);if(!src.length)return;
+  const out=[];let cur=null;const c0=curTrack(from);
+  for(const t of src){
+    try{const bl=await aGet(t.key);if(!bl)continue;const key="p:"+uid(),id=uid();await aPut(key,bl);out.push({id,key,name:t.name});if(c0&&t.id===c0.id)cur=id}catch(e){}
+  }
+  if(!out.length)return;
+  AU.pl[to]=out;AU.cur[to]=cur||out[0].id;saveAU();
+}
+
+/* Orden y siguiente canción (normal o aleatorio) */
+const shufOrd={};
+function mkShuf(k,first){
+  const ids=plOf(k).map(t=>t.id).filter(i=>i!==first);
+  for(let i=ids.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
+  shufOrd[k]=first?[first,...ids]:ids;
+}
+function stepId(k,dir,auto){
+  const a=plOf(k),n=a.length;if(!n)return null;
+  const cur=curTrack(k).id;let ids;
+  if(AU.shuf[k]){
+    let o=shufOrd[k];
+    if(!o||o.length!==n||!a.every(t=>o.includes(t.id))||!o.includes(cur)){mkShuf(k,cur);o=shufOrd[k]}
+    ids=o;
+  }else ids=a.map(t=>t.id);
+  let i=ids.indexOf(cur)+dir;
+  if(i>=n){
+    if(auto&&!AU.rep[k])return null;                 /* sin bucle, al terminar la lista se detiene */
+    if(AU.shuf[k]){                                  /* con aleatorio, el ciclo sigue con un orden nuevo */
+      mkShuf(k,null);const o=shufOrd[k];
+      if(n>1&&o[0]===cur)[o[0],o[1]]=[o[1],o[0]];
+      return o[0];
+    }
+    i=0;
+  }
+  if(i<0)i=n-1;
+  return ids[i];
+}
+function advance(dir,auto){
+  const k=auKey;if(!k||!plOf(k).length)return;
+  const id=stepId(k,dir,auto);
+  if(!id){auUI();return}
+  if(id===curTrack(k).id){bgm.currentTime=0;if(!vidSnd()&&cardA.paused)bgm.play().catch(()=>{});return}
+  playTrack(k,id);
+}
+function playTrack(k,id){
+  if(AU.shuf[k])mkShuf(k,id);
+  AU.cur[k]=id;saveAU();auOff[k]=false;delete auPos[k];
+  if(vidSnd())toast("Silencia el video de fondo para escuchar la música");
+  return syncAudio(true);
+}
+function auToggle(){
+  const k=auSec();
+  if(bgm.paused){if(vidSnd()){toast("Silencia el video de fondo para escuchar la música");return}auOff[k]=false;bgm.play().catch(()=>{})}
+  else{auOff[k]=true;bgm.pause()}
+}
+
 async function syncAudio(force){
   const k=auSec();
   if(k===auKey&&!force){auUI();return}
   if(auKey&&!force)auPos[auKey]=bgm.currentTime;
+  const tok=++auTok;
   bgm.pause();auKey=k;
   if(auURL){URL.revokeObjectURL(auURL);auURL=null}
   bgm.removeAttribute("src");bgm.load();
-  if(AK.has(k)){
+  const t=curTrack(k);
+  if(t){
     try{
-      const b=await aGet(k);
-      if(auKey!==k)return;
+      const b=await aGet(t.key);
+      if(tok!==auTok)return;
       if(b){
         auURL=URL.createObjectURL(b);bgm.src=auURL;bgm.loop=!!AU.loop[k];bgm.volume=auVolOf(k);
         const p=auPos[k]||0;
@@ -895,14 +1023,17 @@ async function syncAudio(force){
   auUI();
 }
 function auUI(){
-  const k=auSec(),has=AK.has(k);
+  const k=auSec(),L=plOf(k),has=L.length>0,t=curTrack(k);
   $("auBtn").classList.toggle("on",has&&!bgm.paused);
+  plWatch();
   if(!$("sAu").classList.contains("on"))return;
   $("auTitle").textContent=k==="home"?"Música de inicio":"Música de la carpeta";
-  $("auName").textContent=has?(AU.name[k]||"Audio"):"Aún no hay audio. Elige uno de tu dispositivo.";
+  $("auName").textContent=has?trName(t)+(L.length>1?"  ·  "+(L.indexOf(t)+1)+" de "+L.length:""):"Aún no hay audio. Elige uno o varios de tu dispositivo.";
   $("auCtl").hidden=!has;$("auDel").hidden=!has;
-  $("auPick").textContent=has?"Cambiar audio":"Elegir audio";
+  $("auPick").textContent=has?"Agregar audio":"Elegir audio";
   $("auPlay").innerHTML=svg(bgm.paused?PLAY:PAUSE);
+  $("auPrev").hidden=$("auNext").hidden=L.length<2;
+  $("auListSub").textContent=has?plural(L.length,"canción","canciones"):"Sin canciones";
   $("auLoop").setAttribute("aria-checked",String(bgm.loop));
   $("auVol").value=Math.round(auVolOf(k)*100);$("auVolTxt").textContent=Math.round(auVolOf(k)*100)+" %";
   const d=bgm.duration||0;
@@ -911,20 +1042,118 @@ function auUI(){
   $("auLeft").textContent="-"+mmss(d-bgm.currentTime);
 }
 ["play","pause","timeupdate","loadedmetadata","ended"].forEach(e=>bgm.addEventListener(e,auUI));
+bgm.addEventListener("ended",()=>advance(1,true));        /* al terminar, el ciclo continúa con la siguiente (o la que toque en aleatorio) */
+bgm.addEventListener("playing",()=>{auErr=0});
+bgm.addEventListener("error",()=>{
+  if(!bgm.getAttribute("src"))return;
+  const L=plOf(auKey);toast("No se pudo reproducir «"+trName(curTrack(auKey))+"»");
+  if(L.length>1&&++auErr<L.length)advance(1,true);
+});
 $("auVol").oninput=()=>{const k=auSec(),v=$("auVol").value/100;AU.vol[k]=v;bgm.volume=v;saveAU();auUI()};
 $("auBtn").onclick=()=>{openS("sAu");auUI()};
-$("auPlay").onclick=()=>{const k=auSec();if(bgm.paused){if(vidSnd()){toast("Silencia el video de fondo para escuchar la música");return}auOff[k]=false;bgm.play().catch(()=>{})}else{auOff[k]=true;bgm.pause()}};
+$("auPlay").onclick=auToggle;
+$("auPrev").onclick=()=>{if(bgm.currentTime>3)bgm.currentTime=0;else advance(-1,false)};
+$("auNext").onclick=()=>advance(1,false);
 $("auBack").onclick=()=>{bgm.currentTime=Math.max(0,bgm.currentTime-10)};
 $("auFwd").onclick=()=>{bgm.currentTime=Math.min(bgm.duration||0,bgm.currentTime+10)};
 $("auSeek").oninput=()=>{if(bgm.duration)bgm.currentTime=$("auSeek").value/1000*bgm.duration};
 $("auLoop").onclick=()=>{const k=auSec();AU.loop[k]=!bgm.loop;bgm.loop=AU.loop[k];saveAU();auUI()};
 $("auPick").onclick=()=>$("auFile").click();
-$("auFile").onchange=e=>{
-  const f=e.target.files[0];e.target.value="";if(!f)return;
-  const k=auSec();
-  aPut(k,f).then(()=>{AU.name[k]=f.name;saveAU();auOff[k]=false;delete auPos[k];return syncAudio(true)}).catch(()=>toast("No se pudo guardar el audio"));
+$("auFile").onchange=e=>{const f=[...e.target.files];e.target.value="";addFiles(f)};
+$("auDel").onclick=()=>{
+  const k=auSec(),n=plOf(k).length;
+  if(n>1&&!confirm("¿Quitar las "+n+" canciones de la lista?"))return;
+  dropList(k);syncAudio(true).then(()=>{if($("sPl").classList.contains("on"))renderPl()});
 };
-$("auDel").onclick=()=>{const k=auSec();aDel(k).then(()=>{delete AU.name[k];delete AU.loop[k];delete AU.vol[k];saveAU();return syncAudio(true)})};
+
+/* Agregar y quitar canciones */
+async function addFiles(files){
+  if(!files.length)return;
+  const k=auSec(),a=plOf(k).slice(),was=a.length;let ok=0,bad=0;
+  for(const f of files){
+    const key="p:"+uid();
+    try{await aPut(key,f);a.push({id:uid(),key,name:f.name||"Audio"});ok++}catch(e){bad++}
+  }
+  if(!ok){toast("No se pudo guardar el audio");return}
+  AU.pl[k]=a;
+  if(!was){AU.cur[k]=a[0].id;if(AU.shuf[k])mkShuf(k,a[0].id);auOff[k]=false;delete auPos[k];saveAU();await syncAudio(true)}
+  else saveAU();
+  if($("sPl").classList.contains("on"))renderPl();
+  auUI();
+  toast(bad?plural(ok,"canción agregada","canciones agregadas")+" · "+bad+" fallaron":plural(ok,"canción agregada","canciones agregadas"));
+}
+async function removeTrack(k,id){
+  const a=plOf(k),i=a.findIndex(t=>t.id===id);if(i<0)return;
+  const wasCur=curTrack(k).id===id,[t]=a.splice(i,1);
+  await aDel(t.key);
+  if(!a.length){dropList(k)}
+  else{if(wasCur){AU.cur[k]=a[Math.min(i,a.length-1)].id;delete auPos[k]}saveAU()}
+  if(wasCur)await syncAudio(true);
+  renderPl();auUI();
+}
+
+/* Panel de la lista de reproducción */
+let plEdit=false,plSig="";
+function plBtns(){
+  const k=auSec();
+  [["plShuf","shuf"],["plRep","rep"]].forEach(([id,f])=>{$(id).classList.toggle("on",!!AU[f][k]);$(id).setAttribute("aria-pressed",String(!!AU[f][k]))});
+}
+function plWatch(){
+  if(!$("sPl").classList.contains("on")||drag||settling)return;
+  const k=auSec(),t=curTrack(k);
+  if(((t?t.id:"")+"|"+bgm.paused+"|"+plOf(k).length)!==plSig)renderPl();
+}
+function renderPl(){
+  const k=auSec(),a=plOf(k),cur=curTrack(k),box=$("plBox");
+  plSig=(cur?cur.id:"")+"|"+bgm.paused+"|"+a.length;
+  if(!a.length)plEdit=false;
+  const sub=$("plSub");sub.textContent="";
+  if(cur){sub.append(bgm.paused?"En pausa · ":"Reproduciendo ");const b=document.createElement("b");b.textContent=trName(cur);sub.append(b)}
+  else sub.textContent="Sin canciones";
+  $("plEdit").hidden=!a.length;$("plEdit").textContent=plEdit?"Listo":"Editar";$("plEdit").classList.toggle("on",plEdit);
+  $("plHint").hidden=a.length<2||plEdit;
+  plBtns();
+  box.innerHTML="";
+  if(!a.length){
+    const e=document.createElement("div");e.className="empty";
+    e.innerHTML='<div class="eic">'+svg(NOTE)+'</div><p></p>';
+    e.querySelector("p").textContent="Aún no hay canciones. Toca Agregar para elegir varias de tu dispositivo.";
+    box.appendChild(e);return;
+  }
+  a.forEach(t=>{
+    const on=!!cur&&t.id===cur.id,el=document.createElement("div");
+    el.className="qi"+(on?" cur":"");el.dataset.id=t.id;el.tabIndex=0;el.setAttribute("role","button");
+    el.innerHTML='<div class="ic">'+svg(NOTE)+'</div><div class="qt"><b></b><small></small></div>'
+      +(plEdit?'<button class="qd" type="button" aria-label="Quitar de la lista">'+svg(TRASH)+'</button>'
+        :on?'<button class="qp" type="button" aria-label="Pausar o reanudar">'+svg(bgm.paused?PLAY:PAUSE)+'</button>':'')
+      +'<button class="grip" type="button"'+(a.length<2?' hidden':'')+'>'+svg(GRIP)+'</button>';
+    el.querySelector("b").textContent=trName(t);
+    el.querySelector("small").textContent=trExt(t);
+    el.querySelector(".grip").setAttribute("aria-label","Mover «"+trName(t)+"». Arrastra, o usa las flechas arriba y abajo");
+    const qp=el.querySelector(".qp"),qd=el.querySelector(".qd");
+    if(qp)qp.onclick=auToggle;
+    if(qd)qd.onclick=()=>removeTrack(k,t.id);
+    el.onclick=e=>{if(drag||settling||plEdit||e.target.closest("button"))return;if(on)auToggle();else playTrack(k,t.id)};
+    el.onkeydown=e=>{if(e.target===el&&(e.key==="Enter"||e.key===" ")){e.preventDefault();el.click()}};
+    box.appendChild(el);
+  });
+}
+const SORT_PL={box:$("plBox"),sel:".qi",sc:$("plSc"),arr:()=>AU.pl[auSec()],render:()=>renderPl(),label:o=>trName(o),save:saveAU};
+sortable(SORT_PL);
+$("auList").onclick=()=>{plEdit=false;renderPl();openS("sPl")};
+$("auListRow").addEventListener("click",e=>{if(!e.target.closest("button"))$("auList").click()});
+$("plEdit").onclick=()=>{plEdit=!plEdit;renderPl()};
+$("plAdd").onclick=()=>$("auFile").click();
+$("plShuf").onclick=()=>{
+  const k=auSec();AU.shuf[k]=!AU.shuf[k];
+  if(AU.shuf[k]){const t=curTrack(k);mkShuf(k,t&&t.id)}
+  saveAU();plBtns();toast(AU.shuf[k]?"Modo aleatorio activado":"Modo aleatorio desactivado");
+};
+$("plRep").onclick=()=>{
+  const k=auSec();AU.rep[k]=!AU.rep[k];
+  saveAU();plBtns();toast(AU.rep[k]?"Bucle activado: la lista no se detiene":"Bucle desactivado");
+};
+
 
 /* Audio de tarjeta: sin bucle; pausa la música de la carpeta mientras suena y luego la retoma */
 function cauUI(){$("cardAu").innerHTML=svg(!cardA.paused&&current&&cardCur===current.id?PAUSE:PLAY)}
@@ -949,7 +1178,7 @@ $("caFile").onchange=e=>{
   aPut("c:"+caId,f).then(()=>{closeS("sCA");renderEdit();toast("Audio guardado")}).catch(()=>toast("No se pudo guardar el audio"));
 };
 $("caDel").onclick=()=>{aDel("c:"+caId).then(()=>{closeS("sCA");renderEdit();toast("Audio quitado")})};
-tx("readonly",s=>s.getAllKeys()).then(k=>{AK=new Set(k);syncAudio(true)}).catch(()=>{});
+tx("readonly",s=>s.getAllKeys()).then(k=>{AK=new Set(k);migrateAU();syncAudio(true)}).catch(()=>{});
 
 /* ---------- Fondos ---------- */
 $("bgBtn").onclick=()=>{
@@ -1089,7 +1318,7 @@ $("vdDel").onclick=async()=>{
 
 /* Botón atrás de Android: cierra hojas, vuelve al inicio o limpia la búsqueda */
 window.voltBack=()=>{
-  const sh=document.querySelector(".sheet.on");
+  const sh=[...document.querySelectorAll(".sheet.on")].pop();
   if(sh){sh.classList.remove("on");return true}
   if(curView!=="home"){home();return true}
   if($("q").value){$("q").value="";runSearch();return true}
