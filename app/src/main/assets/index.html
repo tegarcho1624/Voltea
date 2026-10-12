@@ -67,7 +67,7 @@ mark{background:#c9a24b33;color:var(--gold-hi);border-radius:4px;padding:0 2px}
 .lst-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 2px 12px}
 .lst-h .eyebrow{white-space:nowrap}
 .lst-h small{font-size:12px;color:var(--mut);text-align:right}
-#decks{position:relative}
+#decks,#list{position:relative}
 .deck{position:relative;background:var(--sf);border:1px solid var(--ln);border-radius:24px;padding:16px 16px 16px 18px;margin-bottom:14px;box-shadow:inset 0 1px 0 #f1e9d80a;transition:box-shadow .2s,border-color .2s,background-color .2s;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .deck.in{animation:rise .45s var(--ease) backwards;animation-delay:calc(var(--i,0)*45ms)}
 .deck.shift{transition:transform .24s var(--ease),box-shadow .2s,border-color .2s}
@@ -153,7 +153,12 @@ body.sm .card[data-d=r] .stamp::after{content:"Otra vez"}
 .chip svg{width:16px;height:16px}
 .lh{display:flex;justify-content:space-between;align-items:center;margin:22px 0 8px}
 .lnk{background:none;border:0;padding:0 4px;color:var(--gold-hi);font-size:14px;font-weight:600}
-.it{display:flex;align-items:center;gap:4px;margin-bottom:8px}
+.it{position:relative;display:flex;align-items:center;gap:4px;margin-bottom:8px;border-radius:18px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:box-shadow .2s}
+.it .grip{width:34px;margin:0 -2px 0 -6px}
+.it.shift{transition:transform .24s var(--ease)}
+.it.lift{z-index:6;box-shadow:0 20px 40px -14px #000b;will-change:transform}
+.it.lift .ib{border-color:var(--gold);background:var(--sf2)}
+.it.settle{z-index:6;transition:transform .22s var(--ease),box-shadow .2s}
 .ib{flex:1;min-width:0;background:var(--sf);border:1px solid var(--ln);border-radius:18px;padding:12px 14px}
 .ir{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .ir b{font-weight:500;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -434,18 +439,20 @@ function renderDecks(anim){
   });
 }
 
-/* ---------- Ordenar carpetas: arrastrar (asa ⠿ o pulsación larga) ---------- */
+/* ---------- Ordenar por arrastre (carpetas y tarjetas): asa ⠿ o pulsación larga ---------- */
 let drag=null,settling=false;
 const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
-function startDrag(el,e){
+const SORT_DECKS={box:$("decks"),sel:".deck",sc:$("home"),arr:()=>S.decks,render:()=>renderDecks(false),label:o=>o.name};
+const SORT_CARDS={box:$("list"),sel:".it",sc:$("edit"),arr:()=>deck().cards,render:()=>renderEdit(),label:o=>o.t};
+function startDrag(el,e,cfg){
   if(drag||settling)return;
-  const items=[...$("decks").querySelectorAll(".deck")];
+  const items=[...cfg.box.querySelectorAll(cfg.sel)];
   if(items.length<2)return;
   const from=items.indexOf(el),r=el.getBoundingClientRect(),h=el.offsetHeight;
   const nx=items[from+1],pv=items[from-1];
   const gap=nx?nx.offsetTop-el.offsetTop-h:pv?el.offsetTop-pv.offsetTop-pv.offsetHeight:14;
-  drag={el,items,from,to:from,h,gap,pid:e.pointerId,y:e.clientY,grab:e.clientY-r.top,
-    top:items.map(x=>x.offsetTop),hh:items.map(x=>x.offsetHeight),sc:$("home"),raf:0};
+  drag={cfg,el,items,from,to:from,h,gap,pid:e.pointerId,y:e.clientY,grab:e.clientY-r.top,
+    top:items.map(x=>x.offsetTop),hh:items.map(x=>x.offsetHeight),sc:cfg.sc,raf:0};
   items.forEach(x=>{x.classList.remove("in");if(x!==el)x.classList.add("shift")});
   el.classList.add("lift");document.body.classList.add("dragging");
   buzz(12);
@@ -457,11 +464,11 @@ function dragTick(){
   if(d.y<sr.top+zone)v=-(1-Math.max(0,d.y-sr.top)/zone)*18;
   else if(d.y>sr.bottom-zone)v=(1-Math.max(0,sr.bottom-d.y)/zone)*18;
   if(v)d.sc.scrollTop+=v>0?Math.ceil(v):Math.floor(v);
-  const bt=$("decks").getBoundingClientRect().top,last=d.items.length-1;
+  const bt=d.cfg.box.getBoundingClientRect().top,last=d.items.length-1;
   let ty=d.y-d.grab-(bt+d.top[d.from]);
   ty=Math.max(-d.top[d.from],Math.min(d.top[last]+d.hh[last]-(d.top[d.from]+d.h),ty));
   d.el.style.transform=`translate3d(0,${ty}px,0) scale(1.02)`;
-  /* Se compara el borde delantero (inferior al bajar, superior al subir): funciona con carpetas de alturas distintas */
+  /* Se compara el borde delantero (inferior al bajar, superior al subir): funciona con alturas distintas */
   const tp=d.top[d.from]+ty,bt2=tp+d.h;let to=d.from;
   if(ty>0){for(let k=d.from+1;k<=last;k++){if(bt2>d.top[k]+d.hh[k]/2)to=k;else break}}
   else if(ty<0){for(let k=d.from-1;k>=0;k--){if(tp<d.top[k]+d.hh[k]/2)to=k;else break}}
@@ -485,38 +492,41 @@ function endDrag(){
   d.el.classList.remove("lift");d.el.classList.add("settle");
   d.el.style.transform=`translate3d(0,${ty}px,0)`;
   setTimeout(()=>{
-    if(d.to!==d.from){const[m]=S.decks.splice(d.from,1);S.decks.splice(d.to,0,m);save();buzz(8)}
-    document.body.classList.remove("dragging");settling=false;renderDecks(false);
+    if(d.to!==d.from){const a=d.cfg.arr(),[m]=a.splice(d.from,1);a.splice(d.to,0,m);save();buzz(8)}
+    document.body.classList.remove("dragging");settling=false;d.cfg.render();
   },230);
 }
-function moveDeck(id,dir){
-  const i=S.decks.findIndex(d=>d.id===id),j=i+dir;
-  if(i<0||j<0||j>=S.decks.length)return;
-  const[m]=S.decks.splice(i,1);S.decks.splice(j,0,m);save();renderDecks(false);
-  const el=[...document.querySelectorAll(".deck")].find(x=>x.dataset.id===id),g=el&&el.querySelector(".grip");
+function moveItem(cfg,id,dir){
+  const a=cfg.arr(),i=a.findIndex(o=>o.id===id),j=i+dir;
+  if(i<0||j<0||j>=a.length)return;
+  const[m]=a.splice(i,1);a.splice(j,0,m);save();cfg.render();
+  const el=[...cfg.box.querySelectorAll(cfg.sel)].find(x=>x.dataset.id===id),g=el&&el.querySelector(".grip");
   if(g)g.focus();
-  toast("«"+m.name+"»: posición "+(j+1)+" de "+S.decks.length);
+  toast("«"+cfg.label(m)+"»: posición "+(j+1)+" de "+a.length);
 }
-(function(){
-  const box=$("decks");
+function sortable(cfg){
+  const box=cfg.box;
   box.addEventListener("pointerdown",e=>{
-    const el=e.target.closest(".deck");
+    const el=e.target.closest(cfg.sel);
     if(!el||drag||settling||(e.pointerType==="mouse"&&e.button!==0))return;
-    if(e.target.closest(".grip")){startDrag(el,e);return}
+    if(e.target.closest(".grip")){startDrag(el,e,cfg);return}
     if(e.target.closest("button"))return;
     let ly=e.clientY;const sx=e.clientX,sy=e.clientY,pid=e.pointerId;
     const stop=()=>{clearTimeout(t);removeEventListener("pointermove",mv);removeEventListener("pointerup",stop);removeEventListener("pointercancel",stop)};
     const mv=ev=>{if(ev.pointerId!==pid)return;ly=ev.clientY;if(Math.abs(ev.clientX-sx)>8||Math.abs(ly-sy)>8)stop()};
-    const t=setTimeout(()=>{stop();startDrag(el,{pointerId:pid,clientY:ly})},380);
+    const t=setTimeout(()=>{stop();startDrag(el,{pointerId:pid,clientY:ly},cfg)},380);
     addEventListener("pointermove",mv);addEventListener("pointerup",stop);addEventListener("pointercancel",stop);
   });
   box.addEventListener("keydown",e=>{
     const g=e.target.closest(".grip");if(!g)return;
     const dir=e.key==="ArrowUp"?-1:e.key==="ArrowDown"?1:0;if(!dir)return;
-    e.preventDefault();moveDeck(g.closest(".deck").dataset.id,dir);
+    e.preventDefault();moveItem(cfg,g.closest(cfg.sel).dataset.id,dir);
   });
   box.addEventListener("contextmenu",e=>e.preventDefault());
-  addEventListener("pointermove",e=>{if(drag&&e.pointerId===drag.pid)drag.y=e.clientY});
+}
+sortable(SORT_DECKS);sortable(SORT_CARDS);
+addEventListener("pointermove",e=>{if(drag&&e.pointerId===drag.pid)drag.y=e.clientY});
+(function(){
   const fin=e=>{if(drag&&e.pointerId===drag.pid)endDrag()};
   addEventListener("pointerup",fin);addEventListener("pointercancel",fin);
   document.addEventListener("touchmove",e=>{if(drag&&e.cancelable)e.preventDefault()},{passive:false});
@@ -691,8 +701,9 @@ function renderEdit(){
   $("eCount").textContent=plural(d.cards.length,"tarjeta","tarjetas");
   const l=$("list");l.innerHTML="";
   d.cards.forEach(c=>{
-    const it=document.createElement("div");it.className="it";
-    it.innerHTML=`<div class="ib"><div class="ir"><b></b><span class="tag"></span></div><div class="is"></div></div><button class="tr ca" aria-label="Audio de la tarjeta">${svg(SPK)}</button><button class="tr" aria-label="Borrar tarjeta">${svg(TRASH)}</button>`;
+    const it=document.createElement("div");it.className="it";it.dataset.id=c.id;
+    it.innerHTML=`<button class="grip" type="button"${d.cards.length<2?" hidden":""}>${svg(GRIP)}</button><div class="ib"><div class="ir"><b></b><span class="tag"></span></div><div class="is"></div></div><button class="tr ca" aria-label="Audio de la tarjeta">${svg(SPK)}</button><button class="tr" aria-label="Borrar tarjeta">${svg(TRASH)}</button>`;
+    it.querySelector(".grip").setAttribute("aria-label","Mover tarjeta "+c.t+". Arrastra, o usa las flechas arriba y abajo");
     it.querySelector("b").textContent=c.t;
     it.querySelector(".is").textContent=c.d;
     const tg=it.querySelector(".tag");

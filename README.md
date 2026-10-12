@@ -18,3 +18,7 @@ La app no pide permiso de internet: todo queda en el teléfono.
 - Al acercarte al borde de la pantalla, la lista se desplaza sola.
 - Con teclado o lector de pantalla: enfoca el asa y usa las flechas ↑ ↓.
 - El orden se guarda en el dispositivo y también va dentro de la copia de seguridad (.json).
+
+## Ordenar tarjetas
+- En Editar, cada tarjeta tiene también su asa (⠿) a la izquierda: arrástrala para cambiarla de lugar, o mantén pulsado sobre el texto de la tarjeta.
+- Funciona igual que con las carpetas: autodesplazamiento en los bordes, flechas ↑ ↓ con teclado, y el orden queda guardado y dentro de la copia de seguridad.
