@@ -39,5 +39,6 @@ La app no pide permiso de internet: todo queda en el teléfono.
 - Cada video muestra su miniatura, su nombre, el asa de arrastre (⠿) y un botón de menos (−) para quitarlo. Toca un video para reproducirlo; tocar el que suena lo pausa o reanuda.
 - **Agregar**: elige uno o varios videos del dispositivo. **Orden**: arrastra el asa (⠿) o mantén pulsado sobre el video; con teclado, enfoca el asa y usa ↑ ↓.
 - **Aleatorio**: el siguiente video se elige al azar, sin repetir hasta haber sonado todos. **Repetir**: al terminar el último vuelve a empezar; sin Repetir la lista se detiene. Los botones activos se ven en amarillo.
-- "Bucle" de las opciones sigue repitiendo solo el video actual. "Elegir video del dispositivo" sigue reemplazando el video actual. "Quitar fondo animado" quita también toda la lista.
+- "Bucle" de las opciones sigue repitiendo solo el video actual. "Quitar fondo animado" quita también toda la lista.
 - Ajuste, volumen, silenciar y la regla de música/video funcionan igual que antes con cualquier video de la lista.
+- "Elegir video del dispositivo" ahora acepta varios videos a la vez: todos se agregan a la lista y el primero nuevo pasa a ser el fondo.

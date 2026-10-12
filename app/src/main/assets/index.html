@@ -409,7 +409,7 @@ textarea{min-height:90px;resize:vertical}
     <div class="vdvol"><button id="vdMute">Silenciar</button><input type="range" id="vdVol" min="0" max="100" value="100" aria-label="Volumen del video"></div>
     <p class="sl" id="vdHint"></p>
   </div>
-  <div class="col"><button class="solid" id="vdPick">Elegir video del dispositivo</button><input type="file" id="vdFile" accept="video/*" hidden><button id="vdDel" style="color:var(--r)" hidden>Quitar fondo animado</button><button data-close>Cerrar</button></div>
+  <div class="col"><button class="solid" id="vdPick">Elegir video del dispositivo</button><input type="file" id="vdFile" accept="video/*" multiple hidden><button id="vdDel" style="color:var(--r)" hidden>Quitar fondo animado</button><button data-close>Cerrar</button></div>
 </div></div>
 
 <div class="sheet" id="sVl"><div class="sh pl">
@@ -1322,10 +1322,8 @@ $("vdVol").oninput=()=>{
 };
 $("vdPick").onclick=()=>$("vdFile").click();
 $("vdFile").onchange=e=>{
-  const f=e.target.files[0];e.target.value="";if(!f)return;
-  const k=vkey();
-  vPut(vdBlobKey(k),f).then(()=>{VD.act[k]="local";VD.name[k]=f.name;vdPickDone(k,f.name);delete vdPaused[k];saveVD();vdRefresh(true);vdUI();toast("Fondo animado guardado")})
-    .catch(()=>toast("No se pudo guardar el video"));
+  const f=[...e.target.files];e.target.value="";if(!f.length)return;
+  vdAddFiles(f,true);                 /* uno o varios: se agregan a la lista y el primero nuevo pasa a ser el fondo */
 };
 $("vdDel").onclick=async()=>{
   const k=vkey(),nl=vdList(k).length;
@@ -1446,17 +1444,18 @@ bgv.addEventListener("ended",()=>{                    /* al terminar, sigue con 
 });
 
 /* Agregar y quitar videos */
-async function vdAddFiles(files){
+async function vdAddFiles(files,playNew){
   if(!files.length)return;
-  const k=vkey(),a=vdList(k).slice(),was=a.length;let ok=0,bad=0;
+  const k=vkey(),a=vdList(k).slice(),was=a.length;let ok=0,bad=0,firstNew=null;
   for(const f of files){
     const key="pv:"+uid();
-    try{await vPut(key,f);a.push({id:uid(),key,name:f.name||"Video"});ok++}catch(e){bad++}
+    try{await vPut(key,f);const id=uid();a.push({id,key,name:f.name||"Video"});if(!firstNew)firstNew=id;ok++}catch(e){bad++}
   }
   if(!ok){toast("No se pudo guardar el video");return}
   VD.pl[k]=a;
   if(!was){VD.act[k]="local";VD.cur[k]=a[0].id;VD.name[k]=a[0].name;if(VD.shuf[k])vdMkShuf(k,a[0].id);delete vdPaused[k];saveVD();vdRefresh(true)}
   else saveVD();
+  if(was&&playNew&&firstNew)vdPlayTrack(k,firstNew);
   vdUI();if($("sVl").classList.contains("on"))vlRender();
   toast(bad?plural(ok,"video agregado","videos agregados")+" · "+bad+" fallaron":plural(ok,"video agregado","videos agregados"));
 }
