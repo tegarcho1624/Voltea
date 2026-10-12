@@ -7,7 +7,7 @@ La app no pide permiso de internet: todo queda en el teléfono.
 ## Fondo animado (video del dispositivo)
 - Botón con un ícono de cámara de video, en el centro del grupo de ajustes de ambiente (música · video · imagen), abajo a la derecha.
 - Cada pantalla (inicio, carpeta y estudio) tiene su propio fondo animado, igual que el de imagen.
-- Se eligen uno o varios videos del dispositivo. Opciones: ajuste, bucle, atrasar y adelantar 10 s, pausa, video anterior / siguiente, volumen, silenciar, "Lista de reproducción" y "Quitar fondo animado" (vuelve el fondo de imagen).
+- Se elige un video del dispositivo. Opciones: ajuste, bucle, atrasar y adelantar 10 s, pausa, volumen, silenciar y "Quitar fondo animado" (vuelve el fondo de imagen).
 - Mientras el video suene, la música de fondo se detiene. Si silencias el video (o bajas su volumen a 0), puedes activar la música de fondo.
 - El video no responde a toques. No usa internet.
 
@@ -33,10 +33,11 @@ La app no pide permiso de internet: todo queda en el teléfono.
 - "Bucle" de las opciones de audio sigue repitiendo solo la canción actual.
 - Con más de una canción aparecen los botones de canción anterior / siguiente junto al reproductor.
 
-## Lista de reproducción (fondos animados)
-- En las opciones del fondo animado (botón de la cámara de video), debajo de "Bucle", está la fila "Lista de reproducción" con su botón. Funciona igual que la de música: panel deslizable, una lista propia por pantalla (inicio, y cada carpeta en Editar y en Estudio).
-- El video que ya tenías guardado pasa solo a ser el primero de la lista.
-- **Agregar** varios videos a la vez · **Editar** para quitar · **Orden** con el asa (⠿), pulsación larga o flechas ↑ ↓ · toca un video para reproducirlo; el botón redondo del actual pausa o reanuda.
-- **Aleatorio** (sin repetir hasta haber sonado todos) y **Bucle** de la lista. El "Bucle" de las opciones sigue repitiendo solo el video actual.
-- Al terminar un video continúa con el siguiente; si uno falla, salta al que sigue. Con más de un video aparecen los botones anterior / siguiente.
-- Al borrar una carpeta se borran también los videos de sus listas.
+## Lista de reproducción (fondo animado)
+- En las opciones del fondo animado (botón de la cámara de video), debajo de "Bucle", está la fila "Lista de reproducción" con el mismo botón de lista que en la música. Al tocarlo se abre un panel que no ocupa toda la pantalla y se desliza si hay muchos videos.
+- Cada pantalla (inicio, carpeta y estudio) tiene su propia lista. El video que ya tenías guardado pasa solo a ser el primero de la lista.
+- Cada video muestra su miniatura, su nombre, el asa de arrastre (⠿) y un botón de menos (−) para quitarlo. Toca un video para reproducirlo; tocar el que suena lo pausa o reanuda.
+- **Agregar**: elige uno o varios videos del dispositivo. **Orden**: arrastra el asa (⠿) o mantén pulsado sobre el video; con teclado, enfoca el asa y usa ↑ ↓.
+- **Aleatorio**: el siguiente video se elige al azar, sin repetir hasta haber sonado todos. **Repetir**: al terminar el último vuelve a empezar; sin Repetir la lista se detiene. Los botones activos se ven en amarillo.
+- "Bucle" de las opciones sigue repitiendo solo el video actual. "Elegir video del dispositivo" sigue reemplazando el video actual. "Quitar fondo animado" quita también toda la lista.
+- Ajuste, volumen, silenciar y la regla de música/video funcionan igual que antes con cualquier video de la lista.
