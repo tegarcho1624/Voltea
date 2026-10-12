@@ -1267,12 +1267,13 @@ async function applyVid(force){
     if(!vdPaused[k])bgv.play().catch(()=>{});
   }catch(e){
     if(tok!==vdTok)return;
-    vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");vdUI();toast("No se pudo cargar el video");
+    vdFail=k;vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");vdUI();toast("No se pudo cargar el video"+(e&&e.message==="sin video"?" (el archivo no está guardado)":""));
   }
 }
 bgv.addEventListener("error",()=>{
   if(!vidOn||!bgv.getAttribute("src"))return;
-  vdFail=vkey();vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");vdUI();toast("No se pudo reproducir el video de fondo");
+  const ec=bgv.error?bgv.error.code:0;
+  vdFail=vkey();vdClear();paintBg();bgmResume();$("vdBtn").classList.remove("on");vdUI();toast("No se pudo reproducir el video de fondo"+(ec?" (código "+ec+")":""));
 });
 document.addEventListener("visibilitychange",()=>{
   if(!vidOn||!bgv.getAttribute("src"))return;
@@ -1391,6 +1392,8 @@ function vdThumbLoad(t){
   if(vdThBusy[t.key])return;
   vdThBusy[t.key]=true;
   vdThQ=vdThQ.then(async()=>{
+    await new Promise(r=>setTimeout(r,400));
+    for(let i=0;i<25&&vidOn&&!vdFail&&bgv.readyState<3;i++)await new Promise(r=>setTimeout(r,200));
     try{
       let b=await vGet("vt:"+t.key);
       if(!b){const v=await vGet(t.key);if(v)b=await vdMkThumb(v);if(b)await vPut("vt:"+t.key,b)}
